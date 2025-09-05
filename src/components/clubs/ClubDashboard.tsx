@@ -5,18 +5,118 @@ import { createClient } from '@/lib/supabase/client'
 import VikingsDashboard from './VikingsDashboard'
 import JDADashboard from './JDADashboard'
 
+interface Club {
+  id: string
+  name: string
+  database_prefix: string
+  description?: string
+}
+
+interface VikingsData {
+  friday: VikingsFridayRecord[]
+  matches: VikingsMatchRecord[]
+  members: VikingsMemberRecord[]
+}
+
+interface JDAData {
+  stats: JDAStatsRecord[]
+  legs: JDALegsRecord[]
+  matches: JDAMatchRecord[]
+}
+
+interface VikingsFridayRecord {
+  id: string
+  date: string | null
+  name: string | null
+  points: number | null
+  games: number | null
+  won: number | null
+  lost: number | null
+  darts_thrown: number | null
+  score_left: number | null
+  average: number | null
+  one_eighty: number | null
+  one_seventy_one: number | null
+  high_closer: number | null
+  winner: number
+  block: string | null
+  season: string | null
+  created_at: string
+}
+
+interface VikingsMatchRecord {
+  id: string
+  date: string | null
+  player: string | null
+  against: string | null
+  legs: number | null
+  ave: number | null
+  result: string | null
+  created_at: string
+}
+
+interface VikingsMemberRecord {
+  id: string
+  name: string | null
+  surname: string | null
+  member: string | null
+  season: number | null
+  color: string | null
+  user_id: string | null
+  created_at: string
+}
+
+interface JDAStatsRecord {
+  id: string
+  date: string | null
+  player: string | null
+  bonus: number | null
+  points: number | null
+  games: number | null
+  won: number | null
+  lost: number | null
+  darts: number | null
+  score_left: number | null
+  average: number | null
+  one_eighty: number | null
+  one_seventy_one: number | null
+  closer: number | null
+  closer1: number
+  closer2: number
+  block_position: number | null
+  block: string | null
+  created_at: string
+}
+
+interface JDALegsRecord {
+  id: string
+  date: string | null
+  player: string | null
+  opponent: string | null
+  darts: number | null
+  score_left: number | null
+  result: string | null
+  created_at: string
+}
+
+interface JDAMatchRecord {
+  id: string
+  date: string | null
+  player: string | null
+  opponent: string | null
+  legs: number | null
+  ave: number | null
+  result: string | null
+  created_at: string
+}
+
 interface ClubDashboardProps {
-  club: {
-    id: string
-    name: string
-    database_prefix: string
-    description?: string
-  }
+  club: Club
   userId: string
 }
 
-export default function ClubDashboard({ club, userId }: ClubDashboardProps) {
-  const [data, setData] = useState<any>(null)
+export default function ClubDashboard({ club }: ClubDashboardProps) {
+  const [data, setData] = useState<VikingsData | JDAData | null>(null)
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
 
@@ -34,9 +134,9 @@ export default function ClubDashboard({ club, userId }: ClubDashboardProps) {
           ])
           
           setData({
-            friday: fridayData.data || [],
-            matches: matchesData.data || [],
-            members: memberData.data || []
+            friday: fridayData.data as VikingsFridayRecord[] || [],
+            matches: matchesData.data as VikingsMatchRecord[] || [],
+            members: memberData.data as VikingsMemberRecord[] || []
           })
         } else if (club.name === 'JDA') {
           // Fetch JDA data
@@ -47,9 +147,9 @@ export default function ClubDashboard({ club, userId }: ClubDashboardProps) {
           ])
           
           setData({
-            stats: statsData.data || [],
-            legs: legsData.data || [],
-            matches: matchesData.data || []
+            stats: statsData.data as JDAStatsRecord[] || [],
+            legs: legsData.data as JDALegsRecord[] || [],
+            matches: matchesData.data as JDAMatchRecord[] || []
           })
         }
       } catch (error) {
@@ -89,8 +189,8 @@ export default function ClubDashboard({ club, userId }: ClubDashboardProps) {
       </div>
 
       {/* Club-specific Dashboard */}
-      {club.name === 'Vikings' && <VikingsDashboard data={data} />}
-      {club.name === 'JDA' && <JDADashboard data={data} />}
+      {club.name === 'Vikings' && <VikingsDashboard data={data as VikingsData} />}
+      {club.name === 'JDA' && <JDADashboard data={data as JDAData} />}
     </div>
   )
 }

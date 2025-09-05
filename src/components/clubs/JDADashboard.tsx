@@ -5,11 +5,55 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
+interface JDAStatsRecord {
+  id: string
+  date: string | null
+  player: string | null
+  bonus: number | null
+  points: number | null
+  games: number | null
+  won: number | null
+  lost: number | null
+  darts: number | null
+  score_left: number | null
+  average: number | null
+  one_eighty: number | null
+  one_seventy_one: number | null
+  closer: number | null
+  closer1: number
+  closer2: number
+  block_position: number | null
+  block: string | null
+  created_at: string
+}
+
+interface JDALegsRecord {
+  id: string
+  date: string | null
+  player: string | null
+  opponent: string | null
+  darts: number | null
+  score_left: number | null
+  result: string | null
+  created_at: string
+}
+
+interface JDAMatchRecord {
+  id: string
+  date: string | null
+  player: string | null
+  opponent: string | null
+  legs: number | null
+  ave: number | null
+  result: string | null
+  created_at: string
+}
+
 interface JDADashboardProps {
   data: {
-    stats: any[]
-    legs: any[]
-    matches: any[]
+    stats: JDAStatsRecord[]
+    legs: JDALegsRecord[]
+    matches: JDAMatchRecord[]
   }
 }
 
@@ -20,8 +64,8 @@ export default function JDADashboard({ data }: JDADashboardProps) {
       .filter(record => record.average && record.date)
       .slice(0, 20)
       .map(record => ({
-        date: new Date(record.date).toLocaleDateString(),
-        average: parseFloat(record.average),
+        date: record.date ? new Date(record.date).toLocaleDateString() : 'Unknown',
+        average: parseFloat(record.average!.toString()),
         points: record.points || 0,
         games: record.games || 0,
         won: record.won || 0,
@@ -40,7 +84,7 @@ export default function JDADashboard({ data }: JDADashboardProps) {
     const totalPoints = data.stats.reduce((sum, record) => sum + (record.points || 0), 0)
     const totalBonus = data.stats.reduce((sum, record) => sum + (record.bonus || 0), 0)
     const avgScore = data.stats.length > 0 
-      ? (data.stats.reduce((sum, record) => sum + (parseFloat(record.average) || 0), 0) / data.stats.length).toFixed(2)
+      ? (data.stats.reduce((sum, record) => sum + (parseFloat(record.average?.toString() || '0') || 0), 0) / data.stats.length).toFixed(2)
       : '0.00'
     const total180s = data.stats.reduce((sum, record) => sum + (record.one_eighty || 0), 0)
     const winRate = totalGames > 0 ? ((totalWins / totalGames) * 100).toFixed(1) : '0'
@@ -61,7 +105,7 @@ export default function JDADashboard({ data }: JDADashboardProps) {
   const recentMatches = useMemo(() => {
     return data.matches.slice(0, 10).map(match => ({
       ...match,
-      date: new Date(match.date).toLocaleDateString()
+      date: match.date ? new Date(match.date).toLocaleDateString() : 'Unknown'
     }))
   }, [data.matches])
 

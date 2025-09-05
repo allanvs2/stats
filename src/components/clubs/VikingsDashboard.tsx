@@ -5,11 +5,53 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
+interface VikingsFridayRecord {
+  id: string
+  date: string | null
+  name: string | null
+  points: number | null
+  games: number | null
+  won: number | null
+  lost: number | null
+  darts_thrown: number | null
+  score_left: number | null
+  average: number | null
+  one_eighty: number | null
+  one_seventy_one: number | null
+  high_closer: number | null
+  winner: number
+  block: string | null
+  season: string | null
+  created_at: string
+}
+
+interface VikingsMatchRecord {
+  id: string
+  date: string | null
+  player: string | null
+  against: string | null
+  legs: number | null
+  ave: number | null
+  result: string | null
+  created_at: string
+}
+
+interface VikingsMemberRecord {
+  id: string
+  name: string | null
+  surname: string | null
+  member: string | null
+  season: number | null
+  color: string | null
+  user_id: string | null
+  created_at: string
+}
+
 interface VikingsDashboardProps {
   data: {
-    friday: any[]
-    matches: any[]
-    members: any[]
+    friday: VikingsFridayRecord[]
+    matches: VikingsMatchRecord[]
+    members: VikingsMemberRecord[]
   }
 }
 
@@ -20,8 +62,8 @@ export default function VikingsDashboard({ data }: VikingsDashboardProps) {
       .filter(record => record.average && record.date)
       .slice(0, 20)
       .map(record => ({
-        date: new Date(record.date).toLocaleDateString(),
-        average: parseFloat(record.average),
+        date: new Date(record.date!).toLocaleDateString(),
+        average: parseFloat(record.average!.toString()),
         points: record.points || 0,
         games: record.games || 0,
         won: record.won || 0,
@@ -30,12 +72,12 @@ export default function VikingsDashboard({ data }: VikingsDashboardProps) {
       .reverse()
   }, [data.friday])
 
-  // Calculate summary stats for current user (you'd filter by current user's name)
+  // Calculate summary stats
   const summaryStats = useMemo(() => {
     const totalGames = data.friday.reduce((sum, record) => sum + (record.games || 0), 0)
     const totalWins = data.friday.reduce((sum, record) => sum + (record.won || 0), 0)
     const avgScore = data.friday.length > 0 
-      ? (data.friday.reduce((sum, record) => sum + (parseFloat(record.average) || 0), 0) / data.friday.length).toFixed(2)
+      ? (data.friday.reduce((sum, record) => sum + (parseFloat(record.average?.toString() || '0') || 0), 0) / data.friday.length).toFixed(2)
       : '0.00'
     const total180s = data.friday.reduce((sum, record) => sum + (record.one_eighty || 0), 0)
     const winRate = totalGames > 0 ? ((totalWins / totalGames) * 100).toFixed(1) : '0'
@@ -53,7 +95,7 @@ export default function VikingsDashboard({ data }: VikingsDashboardProps) {
   const recentMatches = useMemo(() => {
     return data.matches.slice(0, 10).map(match => ({
       ...match,
-      date: new Date(match.date).toLocaleDateString()
+      date: match.date ? new Date(match.date).toLocaleDateString() : 'Unknown'
     }))
   }, [data.matches])
 
