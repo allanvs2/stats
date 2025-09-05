@@ -102,7 +102,7 @@ export default function CustomCSVUpload() {
   const [selectedTable, setSelectedTable] = useState<string>('')
   const [uploading, setUploading] = useState<boolean>(false)
   const [message, setMessage] = useState<string>('')
-  const [preview, setPreview] = useState<any[]>([])
+  const [preview, setPreview] = useState<Record<string, unknown>[]>([])
   
   const supabase = createClient()
 
@@ -116,83 +116,83 @@ export default function CustomCSVUpload() {
         header: true,
         preview: 5,
         complete: (results) => {
-          setPreview(results.data)
+          setPreview(results.data as Record<string, unknown>[])
         }
       })
     }
   }
 
-  const processVikingsFridayData = (row: any): VikingsFridayData => ({
-    date: row.Date || null,
-    name: row.Name || null,
-    points: parseInt(row.Points) || null,
-    games: parseInt(row.Games) || null,
-    won: parseInt(row.Won) || null,
-    lost: parseInt(row.Lost) || null,
-    darts_thrown: parseInt(row.DartsThrown) || null,
-    score_left: parseInt(row.ScoreLeft) || null,
-    average: parseFloat(row.Average) || null,
-    one_eighty: parseInt(row['180']) || null,
-    one_seventy_one: parseInt(row['171']) || null,
-    high_closer: parseInt(row.HighCloser) || null,
-    winner: parseInt(row.Winner) || 0,
-    block: row.Block || null,
-    season: row.Season || null
+  const processVikingsFridayData = (row: Record<string, unknown>): VikingsFridayData => ({
+    date: (row.Date as string) || null,
+    name: (row.Name as string) || null,
+    points: row.Points ? parseInt(row.Points as string) : null,
+    games: row.Games ? parseInt(row.Games as string) : null,
+    won: row.Won ? parseInt(row.Won as string) : null,
+    lost: row.Lost ? parseInt(row.Lost as string) : null,
+    darts_thrown: row.DartsThrown ? parseInt(row.DartsThrown as string) : null,
+    score_left: row.ScoreLeft ? parseInt(row.ScoreLeft as string) : null,
+    average: row.Average ? parseFloat(row.Average as string) : null,
+    one_eighty: row['180'] ? parseInt(row['180'] as string) : null,
+    one_seventy_one: row['171'] ? parseInt(row['171'] as string) : null,
+    high_closer: row.HighCloser ? parseInt(row.HighCloser as string) : null,
+    winner: row.Winner ? parseInt(row.Winner as string) : 0,
+    block: (row.Block as string) || null,
+    season: (row.Season as string) || null
   })
 
-  const processVikingsMatchesData = (row: any): VikingsMatchesData => ({
-    date: row.Date || null,
-    player: row.Player || null,
-    against: row.Against || null,
-    legs: parseInt(row.Legs) || null,
-    ave: parseFloat(row.Ave) || null,
-    result: row.Result || null
+  const processVikingsMatchesData = (row: Record<string, unknown>): VikingsMatchesData => ({
+    date: (row.Date as string) || null,
+    player: (row.Player as string) || null,
+    against: (row.Against as string) || null,
+    legs: row.Legs ? parseInt(row.Legs as string) : null,
+    ave: row.Ave ? parseFloat(row.Ave as string) : null,
+    result: (row.Result as string) || null
   })
 
-  const processVikingsMembersData = (row: any): VikingsMembersData => ({
-    name: row.Name || null,
-    surname: row.Surname || null,
-    member: row.Member || null,
-    season: parseInt(row.Season) || null,
-    color: row.Color || null
+  const processVikingsMembersData = (row: Record<string, unknown>): VikingsMembersData => ({
+    name: (row.Name as string) || null,
+    surname: (row.Surname as string) || null,
+    member: (row.Member as string) || null,
+    season: row.Season ? parseInt(row.Season as string) : null,
+    color: (row.Color as string) || null
   })
 
-  const processJDAStatsData = (row: any): JDAStatsData => ({
-    date: row.Date || null,
-    player: row.Player || null,
-    bonus: parseInt(row.Bonus) || null,
-    points: parseInt(row.Points) || null,
-    games: parseInt(row.Games) || null,
-    won: parseInt(row.Won) || null,
-    lost: parseInt(row.Lost) || null,
-    darts: parseInt(row.Darts) || null,
-    score_left: parseInt(row.ScoreLeft) || null,
-    average: parseFloat(row.Average) || null,
-    one_eighty: parseInt(row['180s']) || null,
-    one_seventy_one: parseInt(row['171s']) || null,
-    closer: parseInt(row.Closer) || null,
-    closer1: parseInt(row.Closer1) || 0,
-    closer2: parseInt(row.Closer2) || 0,
-    block_position: parseInt(row.BlockPosition) || null,
-    block: row.Block || null
+  const processJDAStatsData = (row: Record<string, unknown>): JDAStatsData => ({
+    date: (row.Date as string) || null,
+    player: (row.Player as string) || null,
+    bonus: row.Bonus ? parseInt(row.Bonus as string) : null,
+    points: row.Points ? parseInt(row.Points as string) : null,
+    games: row.Games ? parseInt(row.Games as string) : null,
+    won: row.Won ? parseInt(row.Won as string) : null,
+    lost: row.Lost ? parseInt(row.Lost as string) : null,
+    darts: row.Darts ? parseInt(row.Darts as string) : null,
+    score_left: row.ScoreLeft ? parseInt(row.ScoreLeft as string) : null,
+    average: row.Average ? parseFloat(row.Average as string) : null,
+    one_eighty: row['180s'] ? parseInt(row['180s'] as string) : null,
+    one_seventy_one: row['171s'] ? parseInt(row['171s'] as string) : null,
+    closer: row.Closer ? parseInt(row.Closer as string) : null,
+    closer1: row.Closer1 ? parseInt(row.Closer1 as string) : 0,
+    closer2: row.Closer2 ? parseInt(row.Closer2 as string) : 0,
+    block_position: row.BlockPosition ? parseInt(row.BlockPosition as string) : null,
+    block: (row.Block as string) || null
   })
 
-  const processJDALegsData = (row: any): JDALegsData => ({
-    date: row.Date || null,
-    player: row.Player || null,
-    opponent: row.Opponent || null,
-    darts: parseInt(row.Darts) || null,
-    score_left: parseInt(row.ScoreLeft) || null,
-    result: row.Result || null
+  const processJDALegsData = (row: Record<string, unknown>): JDALegsData => ({
+    date: (row.Date as string) || null,
+    player: (row.Player as string) || null,
+    opponent: (row.Opponent as string) || null,
+    darts: row.Darts ? parseInt(row.Darts as string) : null,
+    score_left: row.ScoreLeft ? parseInt(row.ScoreLeft as string) : null,
+    result: (row.Result as string) || null
   })
 
-  const processJDAMatchesData = (row: any): JDAMatchesData => ({
-    date: row.Date || null,
-    player: row.Player || null,
-    opponent: row.Opponent || null,
-    legs: parseInt(row.Legs) || null,
-    ave: parseFloat(row.Ave) || null,
-    result: row.Result || null
+  const processJDAMatchesData = (row: Record<string, unknown>): JDAMatchesData => ({
+    date: (row.Date as string) || null,
+    player: (row.Player as string) || null,
+    opponent: (row.Opponent as string) || null,
+    legs: row.Legs ? parseInt(row.Legs as string) : null,
+    ave: row.Ave ? parseFloat(row.Ave as string) : null,
+    result: (row.Result as string) || null
   })
 
   const handleUpload = async () => {
@@ -215,22 +215,22 @@ export default function CustomCSVUpload() {
           // Process data based on selected table with proper typing
           switch (selectedTable) {
             case 'vikings_friday':
-              processedData = results.data.map(processVikingsFridayData)
+              processedData = (results.data as Record<string, unknown>[]).map(processVikingsFridayData)
               break
             case 'vikings_matches':
-              processedData = results.data.map(processVikingsMatchesData)
+              processedData = (results.data as Record<string, unknown>[]).map(processVikingsMatchesData)
               break
             case 'vikings_members':
-              processedData = results.data.map(processVikingsMembersData)
+              processedData = (results.data as Record<string, unknown>[]).map(processVikingsMembersData)
               break
             case 'jda_stats':
-              processedData = results.data.map(processJDAStatsData)
+              processedData = (results.data as Record<string, unknown>[]).map(processJDAStatsData)
               break
             case 'jda_legs':
-              processedData = results.data.map(processJDALegsData)
+              processedData = (results.data as Record<string, unknown>[]).map(processJDALegsData)
               break
             case 'jda_matches':
-              processedData = results.data.map(processJDAMatchesData)
+              processedData = (results.data as Record<string, unknown>[]).map(processJDAMatchesData)
               break
             default:
               throw new Error('Invalid table selection')
@@ -247,10 +247,9 @@ export default function CustomCSVUpload() {
           
           for (let i = 0; i < filteredData.length; i += batchSize) {
             const batch = filteredData.slice(i, i + batchSize)
-            const { error, data } = await supabase
+            const { error } = await supabase
               .from(selectedTable)
               .insert(batch)
-              .select()
 
             if (error) {
               console.error('Batch error:', error)
@@ -266,8 +265,9 @@ export default function CustomCSVUpload() {
           setMessage(`CSV parsing error: ${error.message}`)
         }
       })
-    } catch (error: any) {
-      setMessage(`Upload error: ${error.message}`)
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      setMessage(`Upload error: ${errorMessage}`)
     } finally {
       setUploading(false)
     }
@@ -368,7 +368,7 @@ export default function CustomCSVUpload() {
               <tbody>
                 {preview.map((row, index) => (
                   <tr key={index}>
-                    {Object.values(row).map((value: any, cellIndex) => (
+                    {Object.values(row).map((value, cellIndex) => (
                       <td key={cellIndex} className="border border-gray-300 px-4 py-2 text-xs">
                         {value?.toString() || ''}
                       </td>

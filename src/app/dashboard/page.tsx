@@ -5,6 +5,27 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { ShieldIcon, StarIcon, BarChart3Icon, TrendingUpIcon, UsersIcon, CalendarIcon } from 'lucide-react'
 
+interface Club {
+  id: string
+  name: string
+  description: string | null
+  database_prefix: string
+}
+
+interface ClubMembershipFromSupabase {
+  joined_at: string
+  clubs: Club
+}
+
+interface Profile {
+  id: string
+  email: string
+  full_name: string | null
+  role: string
+  created_at: string
+  updated_at: string
+}
+
 export default async function DashboardPage() {
   const supabase = await createClient()
   
@@ -15,14 +36,16 @@ export default async function DashboardPage() {
   }
 
   // Get user profile
-  const { data: profile } = await supabase
+  const { data: profileData } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', user.id)
     .single()
 
+  const profile = profileData as Profile | null
+
   // Get user's clubs with membership info
-  const { data: clubs } = await supabase
+  const { data: clubsData } = await supabase
     .from('club_memberships')
     .select(`
       joined_at,
@@ -35,7 +58,9 @@ export default async function DashboardPage() {
     `)
     .eq('user_id', user.id)
 
-  // Get recent activity summary (you can expand this)
+  const clubs = clubsData as ClubMembershipFromSupabase[] | null
+
+  // Get recent activity summary
   const recentStats = {
     totalClubs: clubs?.length || 0,
     memberSince: clubs?.[0]?.joined_at ? new Date(clubs[0].joined_at).toLocaleDateString() : 'N/A'
@@ -121,7 +146,7 @@ export default async function DashboardPage() {
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Your Dart Clubs</h2>
               <div className="grid md:grid-cols-2 gap-6">
-                {clubs.map((membership: any) => (
+                {clubs.map((membership) => (
                   <Card key={membership.clubs.id} className="hover:shadow-lg transition-all duration-200 border-2 hover:border-blue-200">
                     <CardHeader>
                       <CardTitle className="flex items-center justify-between">
@@ -230,7 +255,7 @@ export default async function DashboardPage() {
               <UsersIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-xl font-semibold mb-2">No Club Memberships</h3>
               <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                You haven't been assigned to any clubs yet. Contact your administrator to join Vikings or JDA dart club and start tracking your performance.
+                You haven&apos;t been assigned to any clubs yet. Contact your administrator to join Vikings or JDA dart club and start tracking your performance.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 {profile?.role === 'admin' ? (

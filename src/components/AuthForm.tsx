@@ -63,8 +63,9 @@ export default function AuthForm({ type }: AuthFormProps) {
         router.push('/dashboard')
         router.refresh()
       }
-    } catch (error: any) {
-      setMessage(error.message)
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred'
+      setMessage(errorMessage)
       setMessageType('error')
     } finally {
       setLoading(false)
@@ -154,7 +155,7 @@ export default function AuthForm({ type }: AuthFormProps) {
       {type === 'signup' && (
         <div className="text-center">
           <p className="text-gray-400 text-sm">
-            By creating an account, you'll be able to access statistics for Vikings and JDA dart clubs once assigned by an administrator.
+            By creating an account, you&apos;ll be able to access statistics for Vikings and JDA dart clubs once assigned by an administrator.
           </p>
         </div>
       )}

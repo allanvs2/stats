@@ -5,6 +5,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { ShieldIcon, StarIcon } from 'lucide-react'
 
+// Correct types for Supabase nested queries
+interface Club {
+  id: string
+  name: string
+  description: string | null
+  database_prefix: string
+}
+
+interface ClubMembershipFromSupabase {
+  clubs: Club
+}
+
 export default async function ClubsPage() {
   const supabase = await createClient()
   
@@ -14,8 +26,8 @@ export default async function ClubsPage() {
     redirect('/login')
   }
 
-  // Get user's clubs
-  const { data: userClubs } = await supabase
+  // Get user's clubs - Supabase returns { clubs: Club } structure
+  const { data: userClubsData } = await supabase
     .from('club_memberships')
     .select(`
       clubs (
@@ -28,12 +40,16 @@ export default async function ClubsPage() {
     .eq('user_id', user.id)
 
   // Get all available clubs
-  const { data: allClubs } = await supabase
+  const { data: allClubsData } = await supabase
     .from('clubs')
     .select('*')
     .order('name')
 
-  const userClubIds = userClubs?.map((membership: any) => membership.clubs.id) || []
+  // Type the data correctly
+  const userClubs = userClubsData as ClubMembershipFromSupabase[] | null
+  const allClubs = allClubsData as Club[] | null
+
+  const userClubIds = userClubs?.map((membership) => membership.clubs.id) || []
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -48,7 +64,7 @@ export default async function ClubsPage() {
             <div className="mb-8">
               <h2 className="text-xl font-semibold mb-4">Your Clubs</h2>
               <div className="grid md:grid-cols-2 gap-6">
-                {userClubs.map((membership: any) => (
+                {userClubs.map((membership) => (
                   <Card key={membership.clubs.id} className="hover:shadow-lg transition-shadow">
                     <CardHeader>
                       <CardTitle className="flex items-center">
@@ -82,7 +98,7 @@ export default async function ClubsPage() {
             <CardContent className="text-center py-12">
               <h3 className="text-lg font-semibold mb-2">No Club Membership</h3>
               <p className="text-gray-600 mb-4">
-                You haven't been assigned to any clubs yet. Contact an administrator to join a club.
+                You haven&apos;t been assigned to any clubs yet. Contact an administrator to join a club.
               </p>
               <Link href="/dashboard">
                 <Button>Back to Dashboard</Button>
