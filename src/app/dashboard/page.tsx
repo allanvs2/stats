@@ -3,7 +3,8 @@ import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ShieldIcon, StarIcon, BarChart3Icon, TrendingUpIcon, UsersIcon, CalendarIcon } from 'lucide-react'
+import { ShieldIcon, StarIcon, BarChart3Icon, TrendingUpIcon, UsersIcon, CalendarIcon, Settings } from 'lucide-react'
+import LogoutButton from '@/components/LogoutButton'
 
 interface Club {
   id: string
@@ -79,13 +80,17 @@ export default async function DashboardPage() {
             <div className="flex items-center space-x-4">
               {profile?.role === 'admin' && (
                 <Link href="/admin">
-                  <Button variant="outline">Admin Panel</Button>
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white" size="sm">
+                    <Settings className="w-4 h-4 mr-2" />
+                    Admin Panel
+                  </Button>
                 </Link>
               )}
               <div className="text-right">
                 <p className="text-sm text-gray-500">Member since</p>
                 <p className="font-semibold">{recentStats.memberSince}</p>
               </div>
+              <LogoutButton />
             </div>
           </div>
         </div>

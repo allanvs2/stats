@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Papa from 'papaparse'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 // Define types for each table structure
 interface VikingsFridayData {
@@ -103,96 +104,190 @@ export default function CustomCSVUpload() {
   const [uploading, setUploading] = useState<boolean>(false)
   const [message, setMessage] = useState<string>('')
   const [preview, setPreview] = useState<Record<string, unknown>[]>([])
+  const [authDebug, setAuthDebug] = useState<any>(null)
   
   const supabase = createClient()
+
+  // Debug authentication on component mount
+  useEffect(() => {
+    debugAuth()
+  }, [])
+
+  const debugAuth = async () => {
+    try {
+      console.log('=== Authentication Debug ===')
+      
+      // Get current user
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      console.log('Current user:', user)
+      console.log('User error:', userError)
+      
+      if (user) {
+        // Get user profile
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single()
+        
+        console.log('User profile:', profile)
+        console.log('Profile error:', profileError)
+        
+        // Test admin check
+        const { data: adminCheck, error: adminError } = await supabase
+          .rpc('check_admin_status')
+          .single()
+        
+        console.log('Admin check result:', adminCheck)
+        console.log('Admin check error:', adminError)
+        
+        setAuthDebug({
+          user: user,
+          profile: profile,
+          isAdmin: profile?.role === 'admin',
+          userId: user?.id,
+          email: user?.email
+        })
+      } else {
+        setAuthDebug({
+          user: null,
+          profile: null,
+          isAdmin: false,
+          error: 'No authenticated user'
+        })
+      }
+      
+      console.log('=== End Authentication Debug ===')
+    } catch (error) {
+      console.error('Auth debug error:', error)
+      setAuthDebug({
+        error: error instanceof Error ? error.message : 'Unknown auth error'
+      })
+    }
+  }
+
+  const detectDelimiter = (text: string): string => {
+    const firstLine = text.split('\n')[0]
+    if (firstLine.includes(';')) return ';'
+    if (firstLine.includes(',')) return ','
+    if (firstLine.includes('\t')) return '\t'
+    return ','
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
     if (selectedFile) {
       setFile(selectedFile)
       
-      // Parse CSV for preview
-      Papa.parse(selectedFile, {
-        header: true,
-        preview: 5,
-        complete: (results) => {
-          setPreview(results.data as Record<string, unknown>[])
-        }
-      })
+      // Read file to detect delimiter
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        const text = event.target?.result as string
+        const delimiter = detectDelimiter(text)
+        
+        console.log('Detected delimiter:', delimiter)
+        
+        // Parse CSV for preview with detected delimiter
+        Papa.parse(selectedFile, {
+          header: true,
+          delimiter: delimiter,
+          preview: 5,
+          skipEmptyLines: true,
+          complete: (results) => {
+            console.log('Preview results:', results)
+            setPreview(results.data as Record<string, unknown>[])
+          },
+          error: (error: any) => {
+            console.error('Preview parsing error:', error)
+            setMessage(`Preview error: ${error.message}`)
+          }
+        })
+      }
+      reader.readAsText(selectedFile)
     }
   }
 
-  const processVikingsFridayData = (row: Record<string, unknown>): VikingsFridayData => ({
-    date: (row.Date as string) || null,
-    name: (row.Name as string) || null,
-    points: row.Points ? parseInt(row.Points as string) : null,
-    games: row.Games ? parseInt(row.Games as string) : null,
-    won: row.Won ? parseInt(row.Won as string) : null,
-    lost: row.Lost ? parseInt(row.Lost as string) : null,
-    darts_thrown: row.DartsThrown ? parseInt(row.DartsThrown as string) : null,
-    score_left: row.ScoreLeft ? parseInt(row.ScoreLeft as string) : null,
-    average: row.Average ? parseFloat(row.Average as string) : null,
-    one_eighty: row['180'] ? parseInt(row['180'] as string) : null,
-    one_seventy_one: row['171'] ? parseInt(row['171'] as string) : null,
-    high_closer: row.HighCloser ? parseInt(row.HighCloser as string) : null,
-    winner: row.Winner ? parseInt(row.Winner as string) : 0,
-    block: (row.Block as string) || null,
-    season: (row.Season as string) || null
-  })
+  const cleanValue = (value: unknown): string => {
+    if (value === null || value === undefined) return ''
+    const str = String(value).trim()
+    // Remove quotes if they exist
+    return str.replace(/^["']|["']$/g, '')
+  }
+
+  const processVikingsFridayData = (row: Record<string, unknown>): VikingsFridayData => {
+    console.log('Processing Vikings Friday row:', row)
+    return {
+      date: cleanValue(row.Date) || null,
+      name: cleanValue(row.Name) || null,
+      points: cleanValue(row.Points) ? parseInt(cleanValue(row.Points)) : null,
+      games: cleanValue(row.Games) ? parseInt(cleanValue(row.Games)) : null,
+      won: cleanValue(row.Won) ? parseInt(cleanValue(row.Won)) : null,
+      lost: cleanValue(row.Lost) ? parseInt(cleanValue(row.Lost)) : null,
+      darts_thrown: cleanValue(row.DartsThrown) ? parseInt(cleanValue(row.DartsThrown)) : null,
+      score_left: cleanValue(row.ScoreLeft) ? parseInt(cleanValue(row.ScoreLeft)) : null,
+      average: cleanValue(row.Average) ? parseFloat(cleanValue(row.Average)) : null,
+      one_eighty: cleanValue(row['180']) ? parseInt(cleanValue(row['180'])) : null,
+      one_seventy_one: cleanValue(row['171']) ? parseInt(cleanValue(row['171'])) : null,
+      high_closer: cleanValue(row.HighCloser) ? parseInt(cleanValue(row.HighCloser)) : null,
+      winner: cleanValue(row.Winner) ? parseInt(cleanValue(row.Winner)) : 0,
+      block: cleanValue(row.Block) || null,
+      season: cleanValue(row.Season) || null
+    }
+  }
 
   const processVikingsMatchesData = (row: Record<string, unknown>): VikingsMatchesData => ({
-    date: (row.Date as string) || null,
-    player: (row.Player as string) || null,
-    against: (row.Against as string) || null,
-    legs: row.Legs ? parseInt(row.Legs as string) : null,
-    ave: row.Ave ? parseFloat(row.Ave as string) : null,
-    result: (row.Result as string) || null
+    date: cleanValue(row.Date) || null,
+    player: cleanValue(row.Player) || null,
+    against: cleanValue(row.Against) || null,
+    legs: cleanValue(row.Legs) ? parseInt(cleanValue(row.Legs)) : null,
+    ave: cleanValue(row.Ave) ? parseFloat(cleanValue(row.Ave)) : null,
+    result: cleanValue(row.Result) || null
   })
 
   const processVikingsMembersData = (row: Record<string, unknown>): VikingsMembersData => ({
-    name: (row.Name as string) || null,
-    surname: (row.Surname as string) || null,
-    member: (row.Member as string) || null,
-    season: row.Season ? parseInt(row.Season as string) : null,
-    color: (row.Color as string) || null
+    name: cleanValue(row.Name) || null,
+    surname: cleanValue(row.Surname) || null,
+    member: cleanValue(row.Member) || null,
+    season: cleanValue(row.Season) ? parseInt(cleanValue(row.Season)) : null,
+    color: cleanValue(row.Color) || null
   })
 
   const processJDAStatsData = (row: Record<string, unknown>): JDAStatsData => ({
-    date: (row.Date as string) || null,
-    player: (row.Player as string) || null,
-    bonus: row.Bonus ? parseInt(row.Bonus as string) : null,
-    points: row.Points ? parseInt(row.Points as string) : null,
-    games: row.Games ? parseInt(row.Games as string) : null,
-    won: row.Won ? parseInt(row.Won as string) : null,
-    lost: row.Lost ? parseInt(row.Lost as string) : null,
-    darts: row.Darts ? parseInt(row.Darts as string) : null,
-    score_left: row.ScoreLeft ? parseInt(row.ScoreLeft as string) : null,
-    average: row.Average ? parseFloat(row.Average as string) : null,
-    one_eighty: row['180s'] ? parseInt(row['180s'] as string) : null,
-    one_seventy_one: row['171s'] ? parseInt(row['171s'] as string) : null,
-    closer: row.Closer ? parseInt(row.Closer as string) : null,
-    closer1: row.Closer1 ? parseInt(row.Closer1 as string) : 0,
-    closer2: row.Closer2 ? parseInt(row.Closer2 as string) : 0,
-    block_position: row.BlockPosition ? parseInt(row.BlockPosition as string) : null,
-    block: (row.Block as string) || null
+    date: cleanValue(row.Date) || null,
+    player: cleanValue(row.Player) || null,
+    bonus: cleanValue(row.Bonus) ? parseInt(cleanValue(row.Bonus)) : null,
+    points: cleanValue(row.Points) ? parseInt(cleanValue(row.Points)) : null,
+    games: cleanValue(row.Games) ? parseInt(cleanValue(row.Games)) : null,
+    won: cleanValue(row.Won) ? parseInt(cleanValue(row.Won)) : null,
+    lost: cleanValue(row.Lost) ? parseInt(cleanValue(row.Lost)) : null,
+    darts: cleanValue(row.Darts) ? parseInt(cleanValue(row.Darts)) : null,
+    score_left: cleanValue(row.ScoreLeft) ? parseInt(cleanValue(row.ScoreLeft)) : null,
+    average: cleanValue(row.Average) ? parseFloat(cleanValue(row.Average)) : null,
+    one_eighty: cleanValue(row['180s']) ? parseInt(cleanValue(row['180s'])) : null,
+    one_seventy_one: cleanValue(row['171s']) ? parseInt(cleanValue(row['171s'])) : null,
+    closer: cleanValue(row.Closer) ? parseInt(cleanValue(row.Closer)) : null,
+    closer1: cleanValue(row.Closer1) ? parseInt(cleanValue(row.Closer1)) : 0,
+    closer2: cleanValue(row.Closer2) ? parseInt(cleanValue(row.Closer2)) : 0,
+    block_position: cleanValue(row.BlockPosition) ? parseInt(cleanValue(row.BlockPosition)) : null,
+    block: cleanValue(row.Block) || null
   })
 
   const processJDALegsData = (row: Record<string, unknown>): JDALegsData => ({
-    date: (row.Date as string) || null,
-    player: (row.Player as string) || null,
-    opponent: (row.Opponent as string) || null,
-    darts: row.Darts ? parseInt(row.Darts as string) : null,
-    score_left: row.ScoreLeft ? parseInt(row.ScoreLeft as string) : null,
-    result: (row.Result as string) || null
+    date: cleanValue(row.Date) || null,
+    player: cleanValue(row.Player) || null,
+    opponent: cleanValue(row.Opponent) || null,
+    darts: cleanValue(row.Darts) ? parseInt(cleanValue(row.Darts)) : null,
+    score_left: cleanValue(row.ScoreLeft) ? parseInt(cleanValue(row.ScoreLeft)) : null,
+    result: cleanValue(row.Result) || null
   })
 
   const processJDAMatchesData = (row: Record<string, unknown>): JDAMatchesData => ({
-    date: (row.Date as string) || null,
-    player: (row.Player as string) || null,
-    opponent: (row.Opponent as string) || null,
-    legs: row.Legs ? parseInt(row.Legs as string) : null,
-    ave: row.Ave ? parseFloat(row.Ave as string) : null,
-    result: (row.Result as string) || null
+    date: cleanValue(row.Date) || null,
+    player: cleanValue(row.Player) || null,
+    opponent: cleanValue(row.Opponent) || null,
+    legs: cleanValue(row.Legs) ? parseInt(cleanValue(row.Legs)) : null,
+    ave: cleanValue(row.Ave) ? parseFloat(cleanValue(row.Ave)) : null,
+    result: cleanValue(row.Result) || null
   })
 
   const handleUpload = async () => {
@@ -204,71 +299,131 @@ export default function CustomCSVUpload() {
     setUploading(true)
     setMessage('')
 
+    // Re-check auth before upload
+    await debugAuth()
+
     try {
-      Papa.parse(file, {
-        header: true,
-        dynamicTyping: false, // Keep as strings initially for custom processing
-        skipEmptyLines: true,
-        complete: async (results) => {
-          let processedData: ProcessedData[] = []
-
-          // Process data based on selected table with proper typing
-          switch (selectedTable) {
-            case 'vikings_friday':
-              processedData = (results.data as Record<string, unknown>[]).map(processVikingsFridayData)
-              break
-            case 'vikings_matches':
-              processedData = (results.data as Record<string, unknown>[]).map(processVikingsMatchesData)
-              break
-            case 'vikings_members':
-              processedData = (results.data as Record<string, unknown>[]).map(processVikingsMembersData)
-              break
-            case 'jda_stats':
-              processedData = (results.data as Record<string, unknown>[]).map(processJDAStatsData)
-              break
-            case 'jda_legs':
-              processedData = (results.data as Record<string, unknown>[]).map(processJDALegsData)
-              break
-            case 'jda_matches':
-              processedData = (results.data as Record<string, unknown>[]).map(processJDAMatchesData)
-              break
-            default:
-              throw new Error('Invalid table selection')
-          }
-
-          // Filter out completely empty rows
-          const filteredData = processedData.filter(row => 
-            Object.values(row).some(value => value !== null && value !== '')
-          )
-
-          // Insert data in batches
-          const batchSize = 100
-          let totalInserted = 0
-          
-          for (let i = 0; i < filteredData.length; i += batchSize) {
-            const batch = filteredData.slice(i, i + batchSize)
-            const { error } = await supabase
-              .from(selectedTable)
-              .insert(batch)
-
-            if (error) {
-              console.error('Batch error:', error)
-              throw error
-            }
+      // Read file to detect delimiter
+      const reader = new FileReader()
+      reader.onload = async (event) => {
+        const text = event.target?.result as string
+        const delimiter = detectDelimiter(text)
+        
+        Papa.parse(text, {
+          header: true,
+          delimiter: delimiter,
+          dynamicTyping: false, // Keep as strings initially for custom processing
+          skipEmptyLines: true,
+          complete: async (results) => {
+            console.log('CSV parsing results:', results)
             
-            totalInserted += batch.length
-          }
+            if (results.errors.length > 0) {
+              console.error('CSV parsing errors:', results.errors)
+              setMessage(`CSV parsing errors: ${results.errors.map(e => e.message).join(', ')}`)
+              setUploading(false)
+              return
+            }
 
-          setMessage(`Successfully uploaded ${totalInserted} records to ${selectedTable}`)
-        },
-        error: (error) => {
-          setMessage(`CSV parsing error: ${error.message}`)
-        }
-      })
+            let processedData: ProcessedData[] = []
+
+            try {
+              // Process data based on selected table with proper typing
+              switch (selectedTable) {
+                case 'vikings_friday':
+                  processedData = (results.data as Record<string, unknown>[]).map(processVikingsFridayData)
+                  break
+                case 'vikings_matches':
+                  processedData = (results.data as Record<string, unknown>[]).map(processVikingsMatchesData)
+                  break
+                case 'vikings_members':
+                  processedData = (results.data as Record<string, unknown>[]).map(processVikingsMembersData)
+                  break
+                case 'jda_stats':
+                  processedData = (results.data as Record<string, unknown>[]).map(processJDAStatsData)
+                  break
+                case 'jda_legs':
+                  processedData = (results.data as Record<string, unknown>[]).map(processJDALegsData)
+                  break
+                case 'jda_matches':
+                  processedData = (results.data as Record<string, unknown>[]).map(processJDAMatchesData)
+                  break
+                default:
+                  throw new Error('Invalid table selection')
+              }
+
+              console.log('Processed data sample:', processedData.slice(0, 3))
+
+              // Filter out completely empty rows
+              const filteredData = processedData.filter(row => 
+                Object.values(row).some(value => value !== null && value !== '')
+              )
+
+              console.log(`Filtered data: ${filteredData.length} records`)
+
+              if (filteredData.length === 0) {
+                throw new Error('No valid data found in CSV file')
+              }
+
+              // Insert data in batches
+              const batchSize = 50 // Smaller batches for better error handling
+              let totalInserted = 0
+              const errors: string[] = []
+              
+              for (let i = 0; i < filteredData.length; i += batchSize) {
+                const batch = filteredData.slice(i, i + batchSize)
+                console.log(`Processing batch ${Math.floor(i/batchSize) + 1}:`, batch.length, 'records')
+                
+                const { data, error } = await supabase
+                  .from(selectedTable)
+                  .insert(batch)
+                  .select()
+
+                if (error) {
+                  console.error('Batch error details:', {
+                    message: error.message,
+                    details: error.details,
+                    hint: error.hint,
+                    code: error.code,
+                    batch: batch.slice(0, 2) // Show first 2 records for debugging
+                  })
+                  
+                  errors.push(`Batch ${Math.floor(i/batchSize) + 1}: ${error.message}`)
+                  continue // Continue with next batch
+                }
+                
+                totalInserted += batch.length
+                console.log(`Batch ${Math.floor(i/batchSize) + 1} inserted successfully`)
+              }
+
+              if (totalInserted === 0) {
+                throw new Error(`Upload failed. Errors: ${errors.join(', ')}`)
+              }
+
+              let successMessage = `Successfully uploaded ${totalInserted} records to ${selectedTable}`
+              if (errors.length > 0) {
+                successMessage += `. Warnings: ${errors.join(', ')}`
+              }
+              
+              setMessage(successMessage)
+
+            } catch (processingError) {
+              console.error('Data processing error:', processingError)
+              throw processingError
+            }
+          },
+          error: (error: any) => {
+            console.error('Papa Parse error:', error)
+            setMessage(`CSV parsing error: ${error.message}`)
+            setUploading(false)
+          }
+        })
+      }
+      
+      reader.readAsText(file)
     } catch (error) {
+      console.error('Upload error:', error)
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
       setMessage(`Upload error: ${errorMessage}`)
-    } finally {
       setUploading(false)
     }
   }
@@ -277,16 +432,57 @@ export default function CustomCSVUpload() {
 
   return (
     <div className="space-y-6">
+      {/* Authentication Debug Card */}
+      <Card className="bg-blue-50 border-blue-200">
+        <CardHeader>
+          <CardTitle className="text-blue-900">Authentication Debug</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span>User ID:</span>
+              <span className="font-mono">{authDebug?.userId || 'None'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Email:</span>
+              <span>{authDebug?.email || 'None'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Role:</span>
+              <span className={`font-semibold ${authDebug?.isAdmin ? 'text-green-600' : 'text-red-600'}`}>
+                {authDebug?.profile?.role || 'Unknown'}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span>Is Admin:</span>
+              <span className={`font-semibold ${authDebug?.isAdmin ? 'text-green-600' : 'text-red-600'}`}>
+                {authDebug?.isAdmin ? 'Yes' : 'No'}
+              </span>
+            </div>
+            {authDebug?.error && (
+              <div className="text-red-600">
+                Error: {authDebug.error}
+              </div>
+            )}
+          </div>
+          <Button onClick={debugAuth} size="sm" className="mt-3">
+            Refresh Auth Status
+          </Button>
+        </CardContent>
+      </Card>
+
       <div className="border-b pb-4">
-        <h2 className="text-xl font-semibold">CSV Data Upload</h2>
+        <h2 className="text-xl font-semibold text-gray-600">CSV Data Upload</h2>
         <p className="text-gray-600">Upload data to Vikings or JDA club tables</p>
       </div>
 
       <div>
-        <Label htmlFor="table-select">Select Table</Label>
+        <Label htmlFor="table-select" className="text-gray-600">Select Table</Label>
         <Select value={selectedTable} onValueChange={setSelectedTable}>
           <SelectTrigger>
-            <SelectValue placeholder="Choose table to upload to" />
+            <div className="text-gray-600">
+              <SelectValue placeholder="Choose table to upload to" />
+            </div>
           </SelectTrigger>
           <SelectContent>
             <div className="p-2 font-semibold text-sm text-gray-700">Vikings Club</div>
@@ -311,16 +507,16 @@ export default function CustomCSVUpload() {
       </div>
 
       <div>
-        <Label htmlFor="csv-file">CSV File</Label>
+        <Label htmlFor="csv-file" className="text-gray-600">CSV File</Label>
         <Input
           id="csv-file"
           type="file"
           accept=".csv"
           onChange={handleFileChange}
-          className="mt-1"
+          className="mt-1 text-gray-600"
         />
         <p className="text-sm text-gray-500 mt-1">
-          Upload a CSV file with the appropriate column headers for the selected table.
+          Upload a CSV file with comma (,) or semicolon (;) separators. The component will automatically detect the delimiter.
         </p>
       </div>
 
@@ -383,11 +579,11 @@ export default function CustomCSVUpload() {
 
       <Button
         onClick={handleUpload}
-        disabled={!file || !selectedTable || uploading}
+        disabled={!file || !selectedTable || uploading || !authDebug?.isAdmin}
         className="w-full"
         size="lg"
       >
-        {uploading ? 'Uploading...' : 'Upload CSV Data'}
+        {uploading ? 'Uploading...' : authDebug?.isAdmin ? 'Upload CSV Data' : 'Admin Access Required'}
       </Button>
 
       {message && (
