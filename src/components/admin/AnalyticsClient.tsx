@@ -27,9 +27,19 @@ interface AnalyticsData {
   jdaStatsRecords: number
   jdaLegsRecords: number
   jdaMatchRecords: number
-  userGrowth: any[]
-  vikingsTopPlayers: any[]
-  jdaTopPlayers: any[]
+  userGrowth: UserGrowthData[]
+  vikingsTopPlayers: TopPlayer[]
+  jdaTopPlayers: TopPlayer[]
+}
+interface UserGrowthData {
+  created_at: string
+}
+
+interface TopPlayer {
+  name?: string
+  player?: string
+  average?: number
+  one_eighty?: number
 }
 
 interface AnalyticsClientProps {

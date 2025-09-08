@@ -27,7 +27,6 @@ export default async function ClubsPage() {
 
   // Get club statistics
   const [
-    { data: clubs },
     { count: vikingsFridayRecords },
     { count: vikingsMatchRecords },
     { count: vikingsMemberRecords },
@@ -35,7 +34,6 @@ export default async function ClubsPage() {
     { count: jdaLegsRecords },
     { count: jdaMatchRecords }
   ] = await Promise.all([
-    supabase.from('clubs').select('*').order('name'),
     supabase.from('vikings_friday').select('*', { count: 'exact', head: true }),
     supabase.from('vikings_matches').select('*', { count: 'exact', head: true }),
     supabase.from('vikings_members').select('*', { count: 'exact', head: true }),

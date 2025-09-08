@@ -8,8 +8,7 @@ import {
   Building, 
   Upload, 
   BarChart3,
-  Trophy,
-  Calendar 
+  Trophy
 } from 'lucide-react'
 
 export default async function AdminDashboard() {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Papa from 'papaparse'
 import { Button } from '@/components/ui/button'
@@ -83,6 +83,19 @@ interface JDAMatchesData {
   result: string | null
 }
 
+interface AuthDebugInfo {
+  user: unknown
+  profile: { role?: string } | null
+  isAdmin: boolean
+  userId?: string
+  email?: string
+  error?: string
+}
+
+interface ParseError {
+  message: string
+}
+
 // Union type for all possible processed data
 type ProcessedData = VikingsFridayData | VikingsMatchesData | VikingsMembersData | JDAStatsData | JDALegsData | JDAMatchesData
 
@@ -104,16 +117,12 @@ export default function CustomCSVUpload() {
   const [uploading, setUploading] = useState<boolean>(false)
   const [message, setMessage] = useState<string>('')
   const [preview, setPreview] = useState<Record<string, unknown>[]>([])
-  const [authDebug, setAuthDebug] = useState<any>(null)
+  const [authDebug, setAuthDebug] = useState<AuthDebugInfo | null>(null)
   
   const supabase = createClient()
 
-  // Debug authentication on component mount
-  useEffect(() => {
-    debugAuth()
-  }, [])
-
-  const debugAuth = async () => {
+  // Debug authentication - wrapped in useCallback to fix dependency warning
+  const debugAuth = useCallback(async () => {
     try {
       console.log('=== Authentication Debug ===')
       
@@ -132,14 +141,6 @@ export default function CustomCSVUpload() {
         
         console.log('User profile:', profile)
         console.log('Profile error:', profileError)
-        
-        // Test admin check
-        const { data: adminCheck, error: adminError } = await supabase
-          .rpc('check_admin_status')
-          .single()
-        
-        console.log('Admin check result:', adminCheck)
-        console.log('Admin check error:', adminError)
         
         setAuthDebug({
           user: user,
@@ -161,10 +162,17 @@ export default function CustomCSVUpload() {
     } catch (error) {
       console.error('Auth debug error:', error)
       setAuthDebug({
+        user: null,
+        profile: null,
+        isAdmin: false,
         error: error instanceof Error ? error.message : 'Unknown auth error'
       })
     }
-  }
+  }, [supabase])
+
+  useEffect(() => {
+    debugAuth()
+  }, [debugAuth])
 
   const detectDelimiter = (text: string): string => {
     const firstLine = text.split('\n')[0]
@@ -197,7 +205,7 @@ export default function CustomCSVUpload() {
             console.log('Preview results:', results)
             setPreview(results.data as Record<string, unknown>[])
           },
-          error: (error: any) => {
+          error: (error: ParseError) => {
             console.error('Preview parsing error:', error)
             setMessage(`Preview error: ${error.message}`)
           }
@@ -373,7 +381,7 @@ export default function CustomCSVUpload() {
                 const batch = filteredData.slice(i, i + batchSize)
                 console.log(`Processing batch ${Math.floor(i/batchSize) + 1}:`, batch.length, 'records')
                 
-                const { data, error } = await supabase
+                const { error } = await supabase
                   .from(selectedTable)
                   .insert(batch)
                   .select()
@@ -411,7 +419,7 @@ export default function CustomCSVUpload() {
               throw processingError
             }
           },
-          error: (error: any) => {
+          error: (error: ParseError) => {
             console.error('Papa Parse error:', error)
             setMessage(`CSV parsing error: ${error.message}`)
             setUploading(false)
@@ -472,17 +480,15 @@ export default function CustomCSVUpload() {
       </Card>
 
       <div className="border-b pb-4">
-        <h2 className="text-xl font-semibold text-gray-600">CSV Data Upload</h2>
+        <h2 className="text-xl font-semibold">CSV Data Upload</h2>
         <p className="text-gray-600">Upload data to Vikings or JDA club tables</p>
       </div>
 
       <div>
-        <Label htmlFor="table-select" className="text-gray-600">Select Table</Label>
+        <Label htmlFor="table-select">Select Table</Label>
         <Select value={selectedTable} onValueChange={setSelectedTable}>
           <SelectTrigger>
-            <div className="text-gray-600">
-              <SelectValue placeholder="Choose table to upload to" />
-            </div>
+            <SelectValue placeholder="Choose table to upload to" />
           </SelectTrigger>
           <SelectContent>
             <div className="p-2 font-semibold text-sm text-gray-700">Vikings Club</div>
@@ -507,13 +513,13 @@ export default function CustomCSVUpload() {
       </div>
 
       <div>
-        <Label htmlFor="csv-file" className="text-gray-600">CSV File</Label>
+        <Label htmlFor="csv-file">CSV File</Label>
         <Input
           id="csv-file"
           type="file"
           accept=".csv"
           onChange={handleFileChange}
-          className="mt-1 text-gray-600"
+          className="mt-1"
         />
         <p className="text-sm text-gray-500 mt-1">
           Upload a CSV file with comma (,) or semicolon (;) separators. The component will automatically detect the delimiter.

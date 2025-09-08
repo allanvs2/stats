@@ -113,11 +113,10 @@ export default function UserManagementClient({ initialUsers, clubs }: UserManage
           setUsers(updatedUsers)
         }
       }
-    } catch (error: any) {
-      setMessage(`Error: ${error.message}`)
+       } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      setMessage(`Error: ${errorMessage}`)
     }
-
-    setLoading(false)
   }
 
   const handleRoleChange = async (userId: string, newRole: string) => {
@@ -137,8 +136,9 @@ export default function UserManagementClient({ initialUsers, clubs }: UserManage
         user.id === userId ? { ...user, role: newRole } : user
       ))
       setMessage('User role updated successfully!')
-    } catch (error: any) {
-      setMessage(`Error: ${error.message}`)
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      setMessage(`Error: ${errorMessage}`)
     }
     setLoading(false)
   }
@@ -182,8 +182,9 @@ export default function UserManagementClient({ initialUsers, clubs }: UserManage
       if (updatedUsers) {
         setUsers(updatedUsers)
       }
-    } catch (error: any) {
-      setMessage(`Error: ${error.message}`)
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      setMessage(`Error: ${errorMessage}`)
     }
     setLoading(false)
   }
