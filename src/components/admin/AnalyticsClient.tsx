@@ -18,6 +18,28 @@ const PieChart = dynamic(() => import('recharts').then(mod => mod.PieChart), { s
 const Pie = dynamic(() => import('recharts').then(mod => mod.Pie), { ssr: false })
 const Cell = dynamic(() => import('recharts').then(mod => mod.Cell), { ssr: false })
 
+interface UserGrowthData {
+  created_at: string
+}
+
+interface ProcessedGrowthData {
+  month: string
+  users: number
+}
+
+interface TopPlayer {
+  name?: string
+  player?: string
+  average?: number
+  one_eighty?: number
+}
+
+interface DatabaseData {
+  name: string
+  records: number
+  color: string
+}
+
 interface AnalyticsData {
   totalUsers: number
   totalClubs: number
@@ -30,16 +52,6 @@ interface AnalyticsData {
   userGrowth: UserGrowthData[]
   vikingsTopPlayers: TopPlayer[]
   jdaTopPlayers: TopPlayer[]
-}
-interface UserGrowthData {
-  created_at: string
-}
-
-interface TopPlayer {
-  name?: string
-  player?: string
-  average?: number
-  one_eighty?: number
 }
 
 interface AnalyticsClientProps {
@@ -77,7 +89,7 @@ export default function AnalyticsClient({ data }: AnalyticsClientProps) {
   }
 
   // Process user growth data
-  const userGrowthData = data.userGrowth?.reduce((acc: any[], user) => {
+  const userGrowthData: ProcessedGrowthData[] = data.userGrowth?.reduce((acc: ProcessedGrowthData[], user) => {
     const month = new Date(user.created_at).toISOString().slice(0, 7)
     const existing = acc.find(item => item.month === month)
     if (existing) {
@@ -89,7 +101,7 @@ export default function AnalyticsClient({ data }: AnalyticsClientProps) {
   }, []) || []
 
   // Database overview data
-  const databaseData = [
+  const databaseData: DatabaseData[] = [
     { name: 'Vikings Friday', records: data.vikingsFridayRecords, color: '#3B82F6' },
     { name: 'Vikings Matches', records: data.vikingsMatchRecords, color: '#10B981' },
     { name: 'Vikings Members', records: data.vikingsMemberRecords, color: '#8B5CF6' },
@@ -192,7 +204,7 @@ export default function AnalyticsClient({ data }: AnalyticsClientProps) {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
+                    label={({ name, percent }: { name: string; percent?: number }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="records"
