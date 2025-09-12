@@ -100,7 +100,7 @@ export default function VikingsDashboard({ data }: VikingsDashboardProps) {
   }, [data.matches])
 
   return (
-    <div className="space-y-6">
+    <div className="bg-gray-200 rounded-lg space-y-6">
       {/* Header */}
       <div className="border-b pb-4">
         <h1 className="text-3xl font-bold text-gray-900">Vikings Dart Club</h1>
@@ -146,130 +146,130 @@ export default function VikingsDashboard({ data }: VikingsDashboardProps) {
       </div>
 
       <Tabs defaultValue="performance" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="performance">Performance</TabsTrigger>
-          <TabsTrigger value="matches">Matches</TabsTrigger>
-          <TabsTrigger value="friday">Friday Stats</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="performance" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Average Score Trend</CardTitle>
-              <CardDescription>Performance over recent Friday sessions</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={fridayChartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line 
-                    type="monotone" 
-                    dataKey="average" 
-                    stroke="#8884d8" 
-                    strokeWidth={2}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+          <TabsList className="grid w-full grid-cols-3 bg-white">
+            <TabsTrigger value="performance">Performance</TabsTrigger>
+            <TabsTrigger value="matches">Matches</TabsTrigger>
+            <TabsTrigger value="friday">Friday Stats</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="performance" className="space-y-4">
+            <Card className="bg-white">
+              <CardHeader>
+                <CardTitle className="text-gray-900">Average Score Trend</CardTitle>
+                <CardDescription className="text-gray-600">Performance over recent Friday sessions</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={fridayChartData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis />
+                    <Tooltip />
+                    <Line 
+                      type="monotone" 
+                      dataKey="average" 
+                      stroke="#8884d8" 
+                      strokeWidth={2}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>180s and Performance</CardTitle>
-              <CardDescription>180s scored over recent sessions</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={fridayChartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="one_eighty" fill="#82ca9d" name="180s" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="matches">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Matches</CardTitle>
-              <CardDescription>Latest match results</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {recentMatches.map((match, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <p className="font-semibold">{match.player} vs {match.against}</p>
-                      <p className="text-sm text-gray-600">{match.date}</p>
+            <Card className="bg-white">
+              <CardHeader>
+                <CardTitle className="text-gray-900">180s and Performance</CardTitle>
+                <CardDescription className="text-gray-600">180s scored over recent sessions</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={fridayChartData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="one_eighty" fill="#82ca9d" name="180s" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="matches">
+            <Card className="bg-white">
+              <CardHeader>
+                <CardTitle className="text-gray-900">Recent Matches</CardTitle>
+                <CardDescription className="text-gray-600">Latest match results</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {recentMatches.map((match, index) => (
+                    <div key={index} className="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
+                      <div>
+                        <p className="font-semibold text-gray-900">{match.player} vs {match.against}</p>
+                        <p className="text-sm text-gray-600">{match.date}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-gray-900">{match.result}</p>
+                        <p className="text-sm text-gray-600">Avg: {match.ave}</p>
+                        <p className="text-sm text-gray-600">Legs: {match.legs}</p>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-bold">{match.result}</p>
-                      <p className="text-sm text-gray-600">Avg: {match.ave}</p>
-                      <p className="text-sm text-gray-600">Legs: {match.legs}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="friday">
-          <Card>
-            <CardHeader>
-              <CardTitle>Friday Session Details</CardTitle>
-              <CardDescription>Complete Friday session statistics</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse border border-gray-300">
-                  <thead>
-                    <tr className="bg-gray-50">
-                      <th className="border border-gray-300 p-2 text-left">Date</th>
-                      <th className="border border-gray-300 p-2 text-left">Name</th>
-                      <th className="border border-gray-300 p-2 text-left">Points</th>
-                      <th className="border border-gray-300 p-2 text-left">Games</th>
-                      <th className="border border-gray-300 p-2 text-left">Won</th>
-                      <th className="border border-gray-300 p-2 text-left">Lost</th>
-                      <th className="border border-gray-300 p-2 text-left">Average</th>
-                      <th className="border border-gray-300 p-2 text-left">180s</th>
-                      <th className="border border-gray-300 p-2 text-left">171s</th>
-                      <th className="border border-gray-300 p-2 text-left">Block</th>
-                      <th className="border border-gray-300 p-2 text-left">Season</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.friday.map((record, index) => (
-                      <tr key={index} className="hover:bg-gray-50">
-                        <td className="border border-gray-300 p-2">
-                          {record.date ? new Date(record.date).toLocaleDateString() : '-'}
-                        </td>
-                        <td className="border border-gray-300 p-2">{record.name || '-'}</td>
-                        <td className="border border-gray-300 p-2">{record.points || '-'}</td>
-                        <td className="border border-gray-300 p-2">{record.games || '-'}</td>
-                        <td className="border border-gray-300 p-2">{record.won || '-'}</td>
-                        <td className="border border-gray-300 p-2">{record.lost || '-'}</td>
-                        <td className="border border-gray-300 p-2">{record.average || '-'}</td>
-                        <td className="border border-gray-300 p-2">{record.one_eighty || '-'}</td>
-                        <td className="border border-gray-300 p-2">{record.one_seventy_one || '-'}</td>
-                        <td className="border border-gray-300 p-2">{record.block || '-'}</td>
-                        <td className="border border-gray-300 p-2">{record.season || '-'}</td>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="friday">
+            <Card className="bg-white">
+              <CardHeader>
+                <CardTitle className="text-gray-900">Friday Session Details</CardTitle>
+                <CardDescription className="text-gray-600">Complete Friday session statistics</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse border border-gray-300">
+                    <thead>
+                      <tr className="bg-gray-50">
+                        <th className="border border-gray-300 p-2 text-left text-gray-900">Date</th>
+                        <th className="border border-gray-300 p-2 text-left text-gray-900">Name</th>
+                        <th className="border border-gray-300 p-2 text-left text-gray-900">Points</th>
+                        <th className="border border-gray-300 p-2 text-left text-gray-900">Games</th>
+                        <th className="border border-gray-300 p-2 text-left text-gray-900">Won</th>
+                        <th className="border border-gray-300 p-2 text-left text-gray-900">Lost</th>
+                        <th className="border border-gray-300 p-2 text-left text-gray-900">Average</th>
+                        <th className="border border-gray-300 p-2 text-left text-gray-900">180s</th>
+                        <th className="border border-gray-300 p-2 text-left text-gray-900">171s</th>
+                        <th className="border border-gray-300 p-2 text-left text-gray-900">Block</th>
+                        <th className="border border-gray-300 p-2 text-left text-gray-900">Season</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+                    </thead>
+                    <tbody>
+                      {data.friday.map((record, index) => (
+                        <tr key={index} className="hover:bg-gray-50">
+                          <td className="border border-gray-300 p-2 text-gray-900">
+                            {record.date ? new Date(record.date).toLocaleDateString() : '-'}
+                          </td>
+                          <td className="border border-gray-300 p-2 text-gray-900">{record.name || '-'}</td>
+                          <td className="border border-gray-300 p-2 text-gray-900">{record.points || '-'}</td>
+                          <td className="border border-gray-300 p-2 text-gray-900">{record.games || '-'}</td>
+                          <td className="border border-gray-300 p-2 text-gray-900">{record.won || '-'}</td>
+                          <td className="border border-gray-300 p-2 text-gray-900">{record.lost || '-'}</td>
+                          <td className="border border-gray-300 p-2 text-gray-900">{record.average || '-'}</td>
+                          <td className="border border-gray-300 p-2 text-gray-900">{record.one_eighty || '-'}</td>
+                          <td className="border border-gray-300 p-2 text-gray-900">{record.one_seventy_one || '-'}</td>
+                          <td className="border border-gray-300 p-2 text-gray-900">{record.block || '-'}</td>
+                          <td className="border border-gray-300 p-2 text-gray-900">{record.season || '-'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
   )
 }

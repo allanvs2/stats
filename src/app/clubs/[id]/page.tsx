@@ -1,12 +1,14 @@
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
+import { redirect, notFound } from 'next/navigation'
 import ClubDashboard from '@/components/clubs/ClubDashboard'
 
-interface ClubPageProps {
-  params: { id: string }
+interface Props {
+  params: {
+    id: string
+  }
 }
 
-export default async function ClubPage({ params }: ClubPageProps) {
+export default async function ClubPage({ params }: Props) {
   const supabase = await createClient()
   
   const { data: { user } } = await supabase.auth.getUser()
@@ -15,7 +17,7 @@ export default async function ClubPage({ params }: ClubPageProps) {
     redirect('/login')
   }
 
-  // Get club details
+  // Get the club details
   const { data: club } = await supabase
     .from('clubs')
     .select('*')
@@ -23,10 +25,10 @@ export default async function ClubPage({ params }: ClubPageProps) {
     .single()
 
   if (!club) {
-    redirect('/dashboard')
+    notFound()
   }
 
-  // Verify user is a member of this club
+  // Check if user has access to this club
   const { data: membership } = await supabase
     .from('club_memberships')
     .select('*')
@@ -34,15 +36,16 @@ export default async function ClubPage({ params }: ClubPageProps) {
     .eq('club_id', params.id)
     .single()
 
-  if (!membership) {
+  // If user is not admin and not a member of this club, redirect
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (!membership && profile?.role !== 'admin') {
     redirect('/dashboard')
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        <ClubDashboard club={club} userId={user.id} />
-      </div>
-    </div>
-  )
+  return <ClubDashboard club={club} userId={user.id} />
 }
