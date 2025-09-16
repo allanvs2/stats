@@ -2,6 +2,28 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import AdminClubsClient from '@/components/admin/AdminClubsClient'
 
+// Define types for better TypeScript support - matching AdminClubsClient interfaces
+interface Profile {
+  full_name: string | null
+  email: string
+}
+
+interface VikingsMember {
+  id: string
+  name: string | null
+  surname: string | null
+  member: string | null
+  user_id: string | null
+  profiles: Profile | null
+}
+
+interface JdaMember {
+  id: string
+  player_name: string | null
+  user_id: string | null
+  profiles: Profile | null
+}
+
 export default async function ClubsPage() {
   const supabase = await createClient()
   
@@ -64,7 +86,7 @@ export default async function ClubsPage() {
     .select('id, name, surname, member, user_id')
 
   // Add profile info to vikings members
-  const vikingsMembersWithProfiles = await Promise.all(
+  const vikingsMembersWithProfiles: VikingsMember[] = await Promise.all(
     (vikingsMembers || []).map(async (member) => {
       if (member.user_id) {
         const { data: profile } = await supabase
@@ -86,7 +108,7 @@ export default async function ClubsPage() {
   )
 
   // Get JDA members - handle if table doesn't exist
-  let jdaMembersWithProfiles: any[] = []
+  let jdaMembersWithProfiles: JdaMember[] = []
   try {
     const { data: jdaMembers } = await supabase
       .from('jda_members')
@@ -112,7 +134,8 @@ export default async function ClubsPage() {
         }
       })
     )
-  } catch (error) {
+  } catch {
+    // Removed unused 'error' parameter and simplified catch block
     console.log('JDA members table not yet created')
     jdaMembersWithProfiles = []
   }

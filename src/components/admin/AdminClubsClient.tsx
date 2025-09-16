@@ -20,11 +20,19 @@ interface Club {
   club_memberships: { count: number }[]
 }
 
+interface ClubMembership {
+  id: string
+  club_id: string
+  user_id: string
+  role: string | null
+  joined_at: string
+}
+
 interface User {
   id: string
   email: string
   full_name: string | null
-  club_memberships: any[]
+  club_memberships: ClubMembership[]
 }
 
 interface VikingsMember {
