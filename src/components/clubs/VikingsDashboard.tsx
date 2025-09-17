@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Minus, Trophy, Target, Calculator, Zap } from 'lucide-react';
 import { createBrowserClient } from '@supabase/ssr';
 
@@ -25,6 +24,26 @@ interface ClubStats {
   seasons: string[];
 }
 
+interface AggregatedPlayer {
+  name: string;
+  points: number;
+  games: number;
+  '180s': number;
+  '171s': number;
+  totalScore: number;
+  totalDarts: number;
+}
+
+interface DatabaseRow {
+  name: string;
+  points: number | null;
+  games: number | null;
+  one_eighty: number | null;
+  one_seventy_one: number | null;
+  darts_thrown: number | null;
+  score_left: number | null;
+}
+
 export default function VikingsDashboard() {
   const [stats, setStats] = useState<VikingsStats[]>([]);
   const [clubStats, setClubStats] = useState<ClubStats>({
@@ -43,10 +62,6 @@ export default function VikingsDashboard() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
-
-  useEffect(() => {
-    fetchVikingsData();
-  }, [selectedSeason]);
 
   const fetchVikingsData = async () => {
     try {
@@ -134,6 +149,10 @@ export default function VikingsDashboard() {
     }
   };
 
+  useEffect(() => {
+    fetchVikingsData();
+  }, [selectedSeason]);
+
   // Fallback method if the stored procedure doesn't exist
   const fetchSimpleRankings = async (season: number) => {
     const { data, error } = await supabase
@@ -143,8 +162,8 @@ export default function VikingsDashboard() {
 
     if (error) throw error;
 
-    // Simple aggregation
-    const aggregated = data?.reduce((acc: any, row) => {
+    // Simple aggregation with proper typing
+    const aggregated = data?.reduce((acc: Record<string, AggregatedPlayer>, row: DatabaseRow) => {
       const name = row.name;
       if (!acc[name]) {
         acc[name] = {
@@ -166,7 +185,7 @@ export default function VikingsDashboard() {
       return acc;
     }, {});
 
-    const rankings = Object.values(aggregated || {}).map((player: any, index) => ({
+    const rankings = Object.values(aggregated || {}).map((player: AggregatedPlayer, index) => ({
       position: index + 1,
       name: player.name,
       points: player.points,
@@ -307,7 +326,7 @@ export default function VikingsDashboard() {
             <CardContent>
               <div className="text-2xl font-bold">{clubStats.clubAverage}</div>
               <p className="text-xs text-muted-foreground">
-                Latest week's club average
+                Latest week&apos;s club average
               </p>
             </CardContent>
           </Card>
@@ -354,13 +373,19 @@ export default function VikingsDashboard() {
                       <td className="p-2 text-right">{player['171s']}</td>
                       <td className="p-2 text-right font-mono">{player.average}</td>
                       <td className="p-2 text-center">
-                        <span className={`font-medium ${
-                          player.change > 0 ? 'text-green-600' : 
-                          player.change < 0 ? 'text-red-600' : 
-                          'text-gray-500'
-                        }`}>
-                          {player.change !== null && player.change !== undefined ? player.change : '-'}
-                        </span>
+                        <div className="flex items-center justify-center gap-1">
+                          {getChangeIcon(player.change)}
+                          <span className={`font-medium ${
+                            player.change > 0 ? 'text-green-600' : 
+                            player.change < 0 ? 'text-red-600' : 
+                            'text-gray-500'
+                          }`}>
+                            {player.change !== null && player.change !== undefined && player.change !== 0 ? 
+                              (player.change > 0 ? `+${player.change}` : player.change) : 
+                              '-'
+                            }
+                          </span>
+                        </div>
                       </td>
                     </tr>
                   ))}
