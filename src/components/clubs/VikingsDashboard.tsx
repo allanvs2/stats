@@ -314,8 +314,8 @@ export default function VikingsDashboard() {
                 <span className="text-white font-bold text-lg">V</span>
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">Vikings Club</h2>
-                <p className="text-sm text-gray-500">Friday Night League</p>
+                <h2 className="text-2xl font-bold text-red-500">Vikings Club</h2>
+                <p className="text-sm text-gray-900">Friday Night League</p>
               </div>
             </div>
           </div>
