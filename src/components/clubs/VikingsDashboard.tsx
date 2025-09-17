@@ -295,7 +295,7 @@ export default function VikingsDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-slate-400/60 rounded border-b-2">
       <div className="container mx-auto px-4 py-6 space-y-6">
         {/* Header with Back Button, Logo and Season Selector */}
         <div className="flex items-center justify-between">
