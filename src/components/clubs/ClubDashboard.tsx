@@ -183,7 +183,7 @@ export default function ClubDashboard({ club }: ClubDashboardProps) {
   return (
     <div className="space-y-6">
       {/* Club Header */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-white rounded-lg shadow p-6 text-center">
         <h1 className="text-3xl font-bold text-gray-900">{club.name} Dart Club</h1>
         <p className="text-gray-600">{club.description || 'Professional dart club statistics'}</p>
       </div>

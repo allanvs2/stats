@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { TrendingUp, TrendingDown, Minus, Trophy, Target, Calculator, Zap } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, Trophy, Target, Calculator, Zap, ArrowLeft } from 'lucide-react';
 import { createBrowserClient } from '@supabase/ssr';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 interface VikingsStats {
   position: number;
@@ -45,6 +47,7 @@ interface DatabaseRow {
 }
 
 export default function VikingsDashboard() {
+  const router = useRouter();
   const [stats, setStats] = useState<VikingsStats[]>([]);
   const [clubStats, setClubStats] = useState<ClubStats>({
     totalGames: 0,
@@ -62,6 +65,10 @@ export default function VikingsDashboard() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
+
+  const handleBackToDashboard = () => {
+    router.push('/dashboard');
+  };
 
   const fetchVikingsData = async () => {
     try {
@@ -215,8 +222,25 @@ export default function VikingsDashboard() {
     return (
       <div className="min-h-screen bg-white">
         <div className="container mx-auto px-4 py-6 space-y-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-gray-900">Vikings Club Dashboard</h2>
+          {/* Header with Back Button and Logo */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleBackToDashboard}
+                className="flex items-center gap-2 text-gray-900"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to Dashboard
+              </Button>
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">V</span>
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900">Vikings Club Dashboard</h2>
+              </div>
+            </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {[1, 2, 3, 4].map((i) => (
@@ -237,8 +261,25 @@ export default function VikingsDashboard() {
     return (
       <div className="min-h-screen bg-white">
         <div className="container mx-auto px-4 py-6 space-y-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-gray-900">Vikings Club Dashboard</h2>
+          {/* Header with Back Button and Logo */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleBackToDashboard}
+                className="flex items-center gap-2 text-gray-900"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to Dashboard
+              </Button>
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">V</span>
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900">Vikings Club Dashboard</h2>
+              </div>
+            </div>
           </div>
           <Card>
             <CardContent className="p-6">
@@ -256,24 +297,54 @@ export default function VikingsDashboard() {
   return (
     <div className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-6 space-y-6">
-        {/* Header with Season Selector */}
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-gray-900">Vikings Club Dashboard</h2>
+        {/* Header with Back Button, Logo and Season Selector */}
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <label className="text-sm font-medium">Season:</label>
-            <Select value={selectedSeason} onValueChange={setSelectedSeason}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Select season" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="current">Current Season</SelectItem>
-                {clubStats.seasons.map((season) => (
-                  <SelectItem key={season} value={season}>
-                    Season {season}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleBackToDashboard}
+              className="flex items-center gap-2 hover:bg-gray-50 text-gray-900"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Dashboard
+            </Button>
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
+                <span className="text-white font-bold text-lg">V</span>
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Vikings Club</h2>
+                <p className="text-sm text-gray-500">Friday Night League</p>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4">
+              <label className="text-sm font-medium text-gray-900">Season:</label>
+              <Select value={selectedSeason} onValueChange={setSelectedSeason}>
+                <SelectTrigger className="w-40 text-gray-900">
+                  <SelectValue placeholder="Select season" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="current">Current Season</SelectItem>
+                  {clubStats.seasons.map((season) => (
+                    <SelectItem key={season} value={season}>
+                      Season {season}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex-shrink-0">
+              <Image
+                src="/logo_small.png"
+                alt="Logo"
+                width={103}
+                height={210}
+                className="object-contain"
+              />
+            </div>
           </div>
         </div>
 
@@ -285,7 +356,7 @@ export default function VikingsDashboard() {
               <Trophy className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{clubStats.totalGames.toLocaleString()}</div>
+              <div className="text-2xl font-bold">{Math.floor(clubStats.totalGames / 2).toLocaleString()}</div>
               <p className="text-xs text-muted-foreground">
                 Games played this season
               </p>
