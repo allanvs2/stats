@@ -189,7 +189,7 @@ export default function ClubDashboard({ club }: ClubDashboardProps) {
       </div>
 
       {/* Club-specific Dashboard */}
-      {club.name === 'Vikings' && <VikingsDashboard data={data as VikingsData} />}
+      {club.name === 'Vikings' && <VikingsDashboard/>}
       {club.name === 'JDA' && <JDADashboard data={data as JDAData} />}
     </div>
   )
