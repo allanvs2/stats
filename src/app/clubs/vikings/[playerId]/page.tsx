@@ -181,7 +181,7 @@ export default function VikingsPlayerStatsPage() {
 
       // Calculate stats
       if (fridayResponse && fridayResponse.length > 0) {
-        calculatePlayerStats(fridayResponse, matchResponse || []);
+        calculatePlayerStats(fridayResponse);
         calculateWeeklyAverages(fridayResponse);
       } else {
         console.log('No Friday data found for player:', playerName, 'in season:', seasonToQuery);
@@ -194,15 +194,16 @@ export default function VikingsPlayerStatsPage() {
         console.log('No match data found for player:', playerName);
       }
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error fetching player data:', err);
-      setError(err.message || 'Failed to fetch player data');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch player data';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  const calculatePlayerStats = (fridayData: VikingsFridayData[], matchData: VikingsMatchData[]) => {
+  const calculatePlayerStats = (fridayData: VikingsFridayData[]) => {
     // Highest nightly average
     const highestAverage = Math.max(...fridayData.map(d => d.average || 0));
 
@@ -488,7 +489,12 @@ export default function VikingsPlayerStatsPage() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="week" />
                   <YAxis />
-                  <Tooltip />
+                  <Tooltip 
+                    formatter={(value: number | string, name: string) => [
+                      `${Number(value).toFixed(2)}`,
+                      name === 'average' ? 'Average' : name
+                    ]}
+                  />
                   <Line 
                     type="monotone" 
                     dataKey="average" 
