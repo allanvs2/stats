@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { TrendingUp, TrendingDown, Minus, Trophy, Target, Calculator, Zap, ArrowLeft } from 'lucide-react';
 import { createBrowserClient } from '@supabase/ssr';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import Image from 'next/image';
 
 interface VikingsStats {
@@ -92,6 +93,9 @@ export default function VikingsDashboard() {
 
       // If no season selected, use current season
       const seasonToQuery = selectedSeason === 'current' ? currentSeason : selectedSeason;
+      
+      console.log('Selected season:', selectedSeason);
+      console.log('Season to query:', seasonToQuery);
 
       // Get club statistics for the selected season
       const { data: clubData, error: clubError } = await supabase
@@ -409,6 +413,8 @@ export default function VikingsDashboard() {
             <CardTitle>Club Rankings</CardTitle>
             <CardDescription>
               Current standings for {selectedSeason === 'current' ? 'this season' : `season ${selectedSeason}`}
+              <br />
+              <span className="text-blue-600 font-medium">Click on player names to view detailed individual statistics</span>
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -437,7 +443,14 @@ export default function VikingsDashboard() {
                           <span className="font-medium">#{index + 1}</span>
                         </div>
                       </td>
-                      <td className="p-2 font-medium">{player.name}</td>
+                      <td className="p-2">
+                        <Link 
+                          href={`/clubs/vikings/${encodeURIComponent(player.name)}?season=${selectedSeason}`}
+                          className="text-blue-600 hover:text-blue-800 hover:underline font-medium cursor-pointer transition-colors duration-200"
+                        >
+                          {player.name}
+                        </Link>
+                      </td>
                       <td className="p-2 text-right">{player.points}</td>
                       <td className="p-2 text-right">{player.games}</td>
                       <td className="p-2 text-right">{player['180s']}</td>
