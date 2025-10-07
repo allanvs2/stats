@@ -5,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { ShieldIcon, StarIcon } from 'lucide-react'
 
-// Correct types for Supabase nested queries
 interface Club {
   id: string
   name: string
@@ -17,6 +16,15 @@ interface ClubMembershipFromSupabase {
   clubs: Club
 }
 
+// Helper function to get club route path
+function getClubRoute(clubName: string): string {
+  const routeMap: Record<string, string> = {
+    'Vikings': '/clubs/vikings',
+    'JDA': '/clubs/jda'
+  };
+  return routeMap[clubName] || '/clubs';
+}
+
 export default async function ClubsPage() {
   const supabase = await createClient()
   
@@ -26,7 +34,6 @@ export default async function ClubsPage() {
     redirect('/login')
   }
 
-  // Get user's clubs - Supabase returns { clubs: Club } structure
   const { data: userClubsData } = await supabase
     .from('club_memberships')
     .select(`
@@ -39,13 +46,11 @@ export default async function ClubsPage() {
     `)
     .eq('user_id', user.id)
 
-  // Get all available clubs
   const { data: allClubsData } = await supabase
     .from('clubs')
     .select('*')
     .order('name')
 
-  // Type the data correctly
   const userClubs = userClubsData as ClubMembershipFromSupabase[] | null
   const allClubs = allClubsData as Club[] | null
 
@@ -81,7 +86,7 @@ export default async function ClubsPage() {
                     </CardHeader>
                     <CardContent>
                       <div className="flex gap-2">
-                        <Link href={`/clubs/${membership.clubs.id}`} className="flex-1">
+                        <Link href={getClubRoute(membership.clubs.name)} className="flex-1">
                           <Button className="w-full">
                             View Statistics
                           </Button>
@@ -133,7 +138,7 @@ export default async function ClubsPage() {
                 </CardHeader>
                 <CardContent>
                   {userClubIds.includes(club.id) ? (
-                    <Link href={`/clubs/${club.id}`}>
+                    <Link href={getClubRoute(club.name)}>
                       <Button className="w-full">View Your Stats</Button>
                     </Link>
                   ) : (

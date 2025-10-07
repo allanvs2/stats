@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -211,259 +213,321 @@ export default function VikingsDashboard() {
   };
 
   const getChangeIcon = (change: number) => {
-    if (change > 0) return <TrendingUp className="h-4 w-4 text-green-600" />;
-    if (change < 0) return <TrendingDown className="h-4 w-4 text-red-600" />;
-    return <Minus className="h-4 w-4 text-gray-400" />;
+    if (change > 0) return <TrendingUp className="h-4 w-4 text-emerald-600" />;
+    if (change < 0) return <TrendingDown className="h-4 w-4 text-rose-600" />;
+    return <Minus className="h-4 w-4 text-slate-400" />;
   };
 
   const getChangeColor = (change: number) => {
-    if (change > 0) return 'text-green-600 bg-green-50 border-green-200';
-    if (change < 0) return 'text-red-600 bg-red-50 border-red-200';
-    return 'text-gray-600 bg-gray-50 border-gray-200';
+    if (change > 0) return 'text-emerald-600';
+    if (change < 0) return 'text-rose-600';
+    return 'text-slate-500';
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
-        <div className="container mx-auto px-4 py-6 space-y-6">
-          {/* Header with Back Button and Logo */}
+      <div className="min-h-screen bg-slate-50 relative overflow-hidden bg-zinc-500 rounded-lg">
+       
+        <div className="container mx-auto px-4 py-6 space-y-6 relative z-10">
+        {/* Club Header */}
+          <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 text-center opacity-90">
+            <h1 className="text-3xl font-bold text-slate-900">Vikings Dart Club</h1>
+            <p className="text-slate-600">~~~ For the love of the Game ~~~~</p>
+          </div>
+       
+       
+        {/* Background Logo */}
+        <div 
+          className="absolute inset-0 flex items-center justify-center top-[150px] pointer-events-none rounded-lg"
+          style={{
+            backgroundImage: 'url(/bnw.png)',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'fill',
+            backgroundSize: '100%',
+            /* opacity: 0.3 */
+          }}
+        />
+        
+        <div className="container mx-auto px-4 py-6 space-y-6 relative z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={handleBackToDashboard}
-                className="flex items-center gap-2 text-gray-900"
+                className="border-slate-300 hover:bg-slate-100"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Back to Dashboard
               </Button>
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-red-700 to-red-900 rounded-lg flex items-center justify-center shadow-lg">
                   <span className="text-white font-bold text-lg">V</span>
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900">Vikings Club Dashboard</h2>
+                <h2 className="text-2xl font-bold text-slate-900">Vikings Club Dashboard</h2>
               </div>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {[1, 2, 3, 4].map((i) => (
-              <Card key={i} className="animate-pulse">
+              <Card key={i} className="animate-pulse bg-white border-slate-200">
                 <CardContent className="p-6">
-                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                  <div className="h-8 bg-gray-200 rounded"></div>
+                  <div className="h-4 bg-slate-200 rounded mb-2"></div>
+                  <div className="h-8 bg-slate-200 rounded"></div>
                 </CardContent>
               </Card>
             ))}
           </div>
         </div>
       </div>
+     </div> 
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-white">
-        <div className="container mx-auto px-4 py-6 space-y-6">
-          {/* Header with Back Button and Logo */}
+      <div className="min-h-screen bg-slate-50 relative overflow-hidden bg-zinc-500 rounded-lg">
+        
+        <div className="container mx-auto px-4 py-6 space-y-6 relative z-10">
+        {/* Club Header */}
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 text-center opacity-90">
+          <h1 className="text-3xl font-bold text-slate-900">Vikings Dart Club</h1>
+          <p className="text-slate-600">~~~ For the love of the Game ~~~~</p>
+        </div>
+
+
+        {/* Background Logo */}
+        <div 
+          className="absolute inset-0 flex items-center justify-center top-[150px] pointer-events-none rounded-lg"
+          style={{
+            backgroundImage: 'url(/bnw.png)',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'fill',
+            backgroundSize: '100%',
+            /* opacity: 0.3 */
+          }}
+        />
+        
+        
+        <div className="container mx-auto px-4 py-6 space-y-6 relative z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={handleBackToDashboard}
-                className="flex items-center gap-2 text-gray-900"
+                className="border-slate-300 hover:bg-slate-100"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Back to Dashboard
               </Button>
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-red-700 to-red-900 rounded-lg flex items-center justify-center shadow-lg">
                   <span className="text-white font-bold text-lg">V</span>
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900">Vikings Club Dashboard</h2>
+                <h2 className="text-2xl font-bold text-slate-900">Vikings Club Dashboard</h2>
               </div>
             </div>
           </div>
-          <Card>
+          <Card className="bg-red-50 border-red-200">
             <CardContent className="p-6">
-              <p className="text-red-600">Error loading dashboard: {error}</p>
-              <Button onClick={fetchVikingsData} className="mt-4">
+              <p className="text-red-700">Error loading dashboard: {error}</p>
+              <Button onClick={fetchVikingsData} className="mt-4 bg-red-700 hover:bg-red-800 text-white">
                 Retry
               </Button>
             </CardContent>
           </Card>
         </div>
       </div>
+      </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-400/60 rounded border-b-2">
-      <div className="container mx-auto px-4 py-6 space-y-6">
-        {/* Header with Back Button, Logo and Season Selector */}
+
+    <div className="min-h-screen bg-slate-50 relative overflow-hidden bg-zinc-500 rounded-lg">
+      {/* Background Logo with 90% transparency (opacity: 0.1) */}
+      
+      <div className="container mx-auto px-4 py-6 space-y-6 relative z-10">
+  {/* Club Header */}
+  <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 text-center opacity-90">
+    <h1 className="text-3xl font-bold text-slate-900">Vikings Dart Club</h1>
+    <p className="text-slate-600">~~~ For the love of the Game ~~~~</p>
+  </div>
+     
+      
+      <div 
+        className="absolute inset-0 flex items-center justify-center p-6 top-[150px] pointer-events-none rounded-lg z-0"
+        style={{
+          backgroundImage: 'url(/bnw.png)',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'fill',
+          backgroundSize: '100%',
+          
+          /* borderRadius: 'xl', */
+         /*  opacity: 0.3, */
+        
+        }}
+      />
+      
+      <div className="container mx-auto px-4 py-6 space-y-6 relative z-10 ">
+        {/* Header with Back Button and Season Selector */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button 
               variant="outline" 
               size="sm" 
               onClick={handleBackToDashboard}
-              className="flex items-center gap-2 hover:bg-gray-50 text-gray-900"
+              className="border-slate-300 hover:bg-slate-100"
             >
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Dashboard
             </Button>
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 bg-gradient-to-br from-red-700 to-red-900 rounded-lg flex items-center justify-center shadow-lg">
                 <span className="text-white font-bold text-lg">V</span>
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-red-500">Vikings Club</h2>
-                <p className="text-sm text-gray-900">Friday Night League</p>
+                <h2 className="text-2xl font-bold text-white">Vikings Club</h2>
+                <p className="text-sm text-white">Friday Night League</p>
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-4">
-              <label className="text-sm font-medium text-gray-900">Season:</label>
-              <Select value={selectedSeason} onValueChange={setSelectedSeason}>
-                <SelectTrigger className="w-40 text-gray-900">
-                  <SelectValue placeholder="Select season" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="current">Current Season</SelectItem>
-                  {clubStats.seasons.map((season) => (
-                    <SelectItem key={season} value={season}>
-                      Season {season}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex-shrink-0">
-              <Image
-                src="/logo_small.png"
-                alt="Logo"
-                width={103}
-                height={210}
-                className="object-contain"
-              />
-            </div>
+          <div className="flex items-center gap-4">
+            <label className="text-sm font-medium text-white">Season:</label>
+            <Select value={selectedSeason} onValueChange={setSelectedSeason}>
+              <SelectTrigger className="w-40 border-slate-300 text-black">
+                <SelectValue placeholder="Select season" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="current">Current Season</SelectItem>
+                {clubStats.seasons.map((season) => (
+                  <SelectItem key={season} value={season}>
+                    Season {season}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
-        {/* Statistics Cards */}
+        {/* Statistics Cards - Clean Design */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card>
+          <Card className="bg-white border-slate-200 shadow-sm hover:shadow-md transition-shadow opacity-90">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Games</CardTitle>
-              <Trophy className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-slate-700">Total Games</CardTitle>
+              <Trophy className="h-4 w-4 text-red-700" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{Math.floor(clubStats.totalGames / 2).toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">
+              <div className="text-2xl font-bold text-slate-900">{Math.floor(clubStats.totalGames / 2).toLocaleString()}</div>
+              <p className="text-xs text-slate-500 mt-1">
                 Games played this season
               </p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-white border-slate-200 shadow-sm hover:shadow-md transition-shadow opacity-90">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total 180s</CardTitle>
-              <Target className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-slate-700">Total 180s</CardTitle>
+              <Target className="h-4 w-4 text-red-700" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{clubStats.total180s.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">
+              <div className="text-2xl font-bold text-slate-900">{clubStats.total180s.toLocaleString()}</div>
+              <p className="text-xs text-slate-500 mt-1">
                 Maximum scores achieved
               </p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-white border-slate-200 shadow-sm hover:shadow-md transition-shadow opacity-90">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Darts Thrown</CardTitle>
-              <Zap className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-slate-700">Total Darts Thrown</CardTitle>
+              <Zap className="h-4 w-4 text-red-700" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{clubStats.totalDarts.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">
+              <div className="text-2xl font-bold text-slate-900">{clubStats.totalDarts.toLocaleString()}</div>
+              <p className="text-xs text-slate-500 mt-1">
                 Darts thrown this season
               </p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-white border-slate-200 shadow-sm hover:shadow-md transition-shadow opacity-90">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Club Average (Latest Week)</CardTitle>
-              <Calculator className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-slate-700">Club Average</CardTitle>
+              <Calculator className="h-4 w-4 text-red-700" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{clubStats.clubAverage}</div>
-              <p className="text-xs text-muted-foreground">
-                Latest week&apos;s club average
+              <div className="text-2xl font-bold text-slate-900">{clubStats.clubAverage}</div>
+              <p className="text-xs text-slate-500 mt-1">
+                Latest week&apos;s average
               </p>
             </CardContent>
           </Card>
         </div>
 
         {/* Main Rankings Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Club Rankings</CardTitle>
-            <CardDescription>
+        <Card className="bg-white border-slate-200 shadow-sm opacity-90">
+          <CardHeader className="border-b border-slate-100">
+            <CardTitle className="text-slate-900">Club Rankings</CardTitle>
+            <CardDescription className="text-slate-600">
               Current standings for {selectedSeason === 'current' ? 'this season' : `season ${selectedSeason}`}
               <br />
-              <span className="text-blue-600 font-medium">Click on player names to view detailed individual statistics</span>
+              <span className="text-red-700 font-medium">Click on player names to view detailed individual statistics</span>
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
+          <CardContent className="pt-6">
+            <div className="overflow-x-auto overflow-y-scroll max-h-[1500px]">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b">
-                    <th className="text-left p-2 font-medium">Position</th>
-                    <th className="text-left p-2 font-medium">Player</th>
-                    <th className="text-right p-2 font-medium">Points</th>
-                    <th className="text-right p-2 font-medium">Games</th>
-                    <th className="text-right p-2 font-medium">180s</th>
-                    <th className="text-right p-2 font-medium">171s</th>
-                    <th className="text-right p-2 font-medium">Average</th>
-                    <th className="text-center p-2 font-medium">Change</th>
+                  <tr className="border-b border-slate-200">
+                    <th className="text-left p-3 font-semibold text-slate-700">Position</th>
+                    <th className="text-left p-3 font-semibold text-slate-700">Player</th>
+                    <th className="text-right p-3 font-semibold text-slate-700">Points</th>
+                    <th className="text-right p-3 font-semibold text-slate-700">Games</th>
+                    <th className="text-right p-3 font-semibold text-slate-700">180s</th>
+                    <th className="text-right p-3 font-semibold text-slate-700">171s</th>
+                    <th className="text-right p-3 font-semibold text-slate-700">Average</th>
+                    <th className="text-center p-3 font-semibold text-slate-700">Change</th>
                   </tr>
                 </thead>
                 <tbody>
                   {stats.map((player, index) => (
-                    <tr key={player.name} className={`border-b hover:bg-gray-50 ${index < 3 ? 'bg-yellow-50' : ''}`}>
-                      <td className="p-2">
+                    <tr 
+                      key={player.name} 
+                      className={`border-b border-slate-100 hover:bg-red-50 transition-colors ${
+                        index < 3 ? 'bg-gradient-to-r from-red-50 to-transparent' : ''
+                      }`}
+                    >
+                      <td className="p-3">
                         <div className="flex items-center gap-2">
                           {index < 3 && (
-                            <Trophy className={`h-4 w-4 ${index === 0 ? 'text-yellow-500' : index === 1 ? 'text-gray-400' : 'text-yellow-600'}`} />
+                            <Trophy className={`h-4 w-4 ${
+                              index === 0 ? 'text-yellow-500' : 
+                              index === 1 ? 'text-slate-400' : 
+                              'text-amber-600'
+                            }`} />
                           )}
-                          <span className="font-medium">#{index + 1}</span>
+                          <span className="font-semibold text-slate-700">#{index + 1}</span>
                         </div>
                       </td>
-                      <td className="p-2">
+                      <td className="p-3">
                         <Link 
-                          href={`/clubs/vikings/${encodeURIComponent(player.name)}?season=${selectedSeason}`}
-                          className="text-blue-600 hover:text-blue-800 hover:underline font-medium cursor-pointer transition-colors duration-200"
+                          href={`/clubs/vikings/${encodeURIComponent(player.name)}?season=${selectedSeason === 'current' ? clubStats.seasons[0] || 'current' : selectedSeason}&year=${selectedSeason === 'current' ? new Date().getFullYear() : selectedSeason}`}
+                          className="text-red-700 hover:text-red-900 hover:underline font-medium cursor-pointer transition-colors duration-200"
                         >
                           {player.name}
                         </Link>
                       </td>
-                      <td className="p-2 text-right">{player.points}</td>
-                      <td className="p-2 text-right">{player.games}</td>
-                      <td className="p-2 text-right">{player['180s']}</td>
-                      <td className="p-2 text-right">{player['171s']}</td>
-                      <td className="p-2 text-right font-mono">{player.average}</td>
-                      <td className="p-2 text-center">
+                      <td className="p-3 text-right font-semibold text-slate-900">{player.points}</td>
+                      <td className="p-3 text-right text-slate-700">{player.games}</td>
+                      <td className="p-3 text-right text-slate-700">{player['180s']}</td>
+                      <td className="p-3 text-right text-slate-700">{player['171s']}</td>
+                      <td className="p-3 text-right font-mono font-medium text-slate-900">{player.average}</td>
+                      <td className="p-3 text-center">
                         <div className="flex items-center justify-center gap-1">
                           {getChangeIcon(player.change)}
-                          <span className={`font-medium ${
-                            player.change > 0 ? 'text-green-600' : 
-                            player.change < 0 ? 'text-red-600' : 
-                            'text-gray-500'
-                          }`}>
+                          <span className={`font-medium ${getChangeColor(player.change)}`}>
                             {player.change !== null && player.change !== undefined && player.change !== 0 ? 
                               (player.change > 0 ? `+${player.change}` : player.change) : 
                               '-'
@@ -477,7 +541,7 @@ export default function VikingsDashboard() {
               </table>
               
               {stats.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-slate-500">
                   No player data found for the selected season.
                 </div>
               )}
@@ -486,5 +550,6 @@ export default function VikingsDashboard() {
         </Card>
       </div>
     </div>
+     </div>
   );
 }

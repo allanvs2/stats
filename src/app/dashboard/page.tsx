@@ -27,6 +27,15 @@ interface Profile {
   updated_at: string
 }
 
+// Helper function to get club route path
+function getClubRoute(clubName: string): string {
+  const routeMap: Record<string, string> = {
+    'Vikings': '/clubs/vikings',
+    'JDA': '/clubs/jda'
+  };
+  return routeMap[clubName] || '/clubs';
+}
+
 export default async function DashboardPage() {
   const supabase = await createClient()
   
@@ -200,7 +209,7 @@ export default async function DashboardPage() {
                           </div>
                         </div>
                       </div>
-                      <Link href={`/clubs/${membership.clubs.id}`}>
+                      <Link href={getClubRoute(membership.clubs.name)}>
                         <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
                           <BarChart3Icon className="w-4 h-4 mr-2" />
                           View {membership.clubs.name} Stats

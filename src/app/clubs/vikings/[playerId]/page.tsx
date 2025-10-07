@@ -36,6 +36,8 @@ interface VikingsMatchData {
   legs: number;
   ave: number;
   result: string;
+  season: number;
+  year: number;
 }
 
 interface PlayerStats {
@@ -76,14 +78,7 @@ export default function VikingsPlayerStatsPage() {
   const playerId = params.playerId as string;
   const seasonParam = searchParams.get('season') || 'current';
   
-  // Handle the case where playerId might be undefined
   const playerName = playerId ? decodeURIComponent(playerId) : '';
-  
-  // Debug logging to see what we're getting
-  console.log('Raw params:', params);
-  console.log('playerId:', playerId);
-  console.log('playerName:', playerName);
-  console.log('seasonParam:', seasonParam);
 
   const [fridayData, setFridayData] = useState<VikingsFridayData[]>([]);
   const [matchData, setMatchData] = useState<VikingsMatchData[]>([]);
@@ -103,7 +98,7 @@ export default function VikingsPlayerStatsPage() {
       setError('No player name provided');
       setLoading(false);
     }
-  }, [playerName]);
+  }, [playerName, seasonParam]);
 
   const fetchPlayerData = async () => {
     if (!playerName) {
@@ -116,16 +111,11 @@ export default function VikingsPlayerStatsPage() {
       setLoading(true);
       setError(null);
 
-      console.log('Fetching data for player:', playerName);
-      console.log('For season:', seasonParam);
-
-      // Determine the actual season to query
       let seasonToQuery: number | null = null;
       
       if (seasonParam !== 'current') {
         seasonToQuery = parseInt(seasonParam);
       } else {
-        // Get the latest season from the database
         const { data: seasonsData } = await supabase
           .from('vikings_friday')
           .select('season')
@@ -138,9 +128,6 @@ export default function VikingsPlayerStatsPage() {
         }
       }
 
-      console.log('Querying season:', seasonToQuery);
-
-      // Build the query with season filter
       let fridayQuery = supabase
         .from('vikings_friday')
         .select('*')
@@ -153,45 +140,33 @@ export default function VikingsPlayerStatsPage() {
       const { data: fridayResponse, error: fridayError } = await fridayQuery
         .order('date', { ascending: true });
 
-      console.log('Friday data response:', fridayResponse);
-      console.log('Friday error:', fridayError);
-
       if (fridayError) throw fridayError;
 
-      // Fetch Vikings Matches data with season filter
       let matchQuery = supabase
         .from('vikings_matches')
         .select('*')
         .eq('player', playerName);
       
-      if (seasonToQuery !== null) {
+      if (seasonToQuery !== null && seasonToQuery !== undefined) {
         matchQuery = matchQuery.eq('season', seasonToQuery);
       }
 
       const { data: matchResponse, error: matchError } = await matchQuery
         .order('date', { ascending: false });
 
-      console.log('Match data response:', matchResponse);
-      console.log('Match error:', matchError);
-
       if (matchError) throw matchError;
 
       setFridayData(fridayResponse || []);
       setMatchData(matchResponse || []);
 
-      // Calculate stats
       if (fridayResponse && fridayResponse.length > 0) {
         calculatePlayerStats(fridayResponse);
         calculateWeeklyAverages(fridayResponse);
-      } else {
-        console.log('No Friday data found for player:', playerName, 'in season:', seasonToQuery);
       }
 
       if (matchResponse && matchResponse.length > 0) {
         calculateTopOpponents(matchResponse);
         calculateTopMatches(matchResponse);
-      } else {
-        console.log('No match data found for player:', playerName);
       }
 
     } catch (err: unknown) {
@@ -204,30 +179,17 @@ export default function VikingsPlayerStatsPage() {
   };
 
   const calculatePlayerStats = (fridayData: VikingsFridayData[]) => {
-    // Highest nightly average
     const highestAverage = Math.max(...fridayData.map(d => d.average || 0));
-
-    // Games won percentage
     const totalGames = fridayData.reduce((sum, d) => sum + (d.games || 0), 0);
     const totalWon = fridayData.reduce((sum, d) => sum + (d.won || 0), 0);
     const winPercentage = totalGames > 0 ? (totalWon / totalGames) * 100 : 0;
-
-    // Accumulated average (weighted by games played)
     const totalPointsWeighted = fridayData.reduce((sum, d) => sum + (d.average || 0) * (d.games || 0), 0);
     const accumulatedAverage = totalGames > 0 ? totalPointsWeighted / totalGames : 0;
-
-    // Total legs won/lost
     const totalLegsWon = fridayData.reduce((sum, d) => sum + (d.won || 0), 0);
     const totalLegsLost = fridayData.reduce((sum, d) => sum + (d.lost || 0), 0);
-
-    // Total darts thrown
     const totalDartsThrown = fridayData.reduce((sum, d) => sum + (d.darts_thrown || 0), 0);
-
-    // Total 180s and 171s
     const total180s = fridayData.reduce((sum, d) => sum + (d.one_eighty || 0), 0);
     const total171s = fridayData.reduce((sum, d) => sum + (d.one_seventy_one || 0), 0);
-
-    // Highest closer
     const highestCloser = Math.max(...fridayData.map(d => d.high_closer || 0));
 
     setPlayerStats({
@@ -267,16 +229,12 @@ export default function VikingsPlayerStatsPage() {
       
       opponentStats[opponent].played++;
       
-      // Check for various result formats that might indicate a win
       const result = match.result?.toLowerCase() || '';
       if (result === 'won' || result === 'win' || result === 'w' || result.includes('won')) {
         opponentStats[opponent].wins++;
       } else if (result === 'lost' || result === 'lose' || result === 'l' || result.includes('lost')) {
         opponentStats[opponent].losses++;
       } else {
-        // If result format is unclear, log it for debugging
-        console.log('Unclear match result format:', match.result, 'for match against', opponent);
-        // For now, assume it's a loss if not clearly a win
         opponentStats[opponent].losses++;
       }
     });
@@ -290,9 +248,6 @@ export default function VikingsPlayerStatsPage() {
       }))
       .sort((a, b) => b.timesPlayed - a.timesPlayed)
       .slice(0, 5);
-
-    // Debug logging
-    console.log('Opponent calculations:', topOpponents);
     
     setTopOpponents(topOpponents);
   };
@@ -314,193 +269,261 @@ export default function VikingsPlayerStatsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-100 to-black-50 p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-600 rounded w-1/4 mb-6"></div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="h-32 bg-gray-400 rounded-lg"></div>
+    <div className="min-h-screen bg-zinc-500 relative overflow-hidden">
+      <div className="container mx-auto px-4 py-6 space-y-6 relative z-10">
+  {/* Club Header */}
+  <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 text-center opacity-90">
+    <h1 className="text-3xl font-bold text-slate-900">Vikings Dart Club</h1>
+    <p className="text-slate-600">~~~ For the love of the Game ~~~~</p>
+  </div>
+
+    <div className="min-h-screen bg-zinc-500 relative overflow-hidden">
+      <div 
+        className="absolute inset-0 flex items-center justify-center pointer-events-none rounded-lg z-0"
+        style={{
+          backgroundImage: 'url(/bnw.png)',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'fill',
+          backgroundSize: '100%',
+          /* opacity: 0.4 */
+        }}
+      />
+        
+        <div className="max-w-7xl mx-auto px-4 py-6 relative z-10">
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 bg-slate-200 rounded w-1/4 mb-6"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="h-32 bg-slate-200 rounded-lg"></div>
               ))}
             </div>
-            <div className="h-96 bg-gray-300 rounded-lg mb-8"></div>
+            <div className="h-96 bg-slate-200 rounded-lg"></div>
           </div>
         </div>
       </div>
+      </div>
+</div>
+
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-100 to-black-50 p-6">
-        <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-zinc-500 relative overflow-hidden">
+      <div className="container mx-auto px-4 py-6 space-y-6 relative z-10">
+  {/* Club Header */}
+  <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 text-center opacity-90">
+    <h1 className="text-3xl font-bold text-slate-900">Vikings Dart Club</h1>
+    <p className="text-slate-600">~~~ For the love of the Game ~~~~</p>
+  </div>
+
+    <div className="min-h-screen bg-zinc-500 relative overflow-hidden">
+      <div 
+        className="absolute inset-0 flex items-center justify-center pointer-events-none rounded-lg z-0"
+        style={{
+          backgroundImage: 'url(/bnw.png)',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'fill',
+          backgroundSize: '100%',
+          /* opacity: 0.4 */
+        }}
+      />
+        
+        <div className="max-w-7xl mx-auto px-4 py-6 relative z-10">
           <Button
             onClick={() => router.back()}
             variant="outline"
-            className="mb-6"
+            className="mb-6 border-slate-300 hover:bg-slate-100"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Vikings
           </Button>
           <Card className="bg-red-50 border-red-200">
             <CardContent className="p-6">
-              <p className="text-red-600">Error: {error}</p>
+              <p className="text-red-700">Error: {error}</p>
             </CardContent>
           </Card>
         </div>
+      </div>
+      </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-orange-400 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8 text-gray-900">
+    <div className="min-h-screen bg-zinc-500 relative overflow-hidden">
+      <div className="container mx-auto px-4 py-6 space-y-6 relative z-10">
+  {/* Club Header */}
+  <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 text-center opacity-90">
+    <h1 className="text-3xl font-bold text-slate-900">Vikings Dart Club</h1>
+    <p className="text-slate-600">~~~ For the love of the Game ~~~~</p>
+  </div>
+
+    <div className="min-h-screen bg-zinc-500 relative overflow-hidden">
+      <div 
+        className="absolute inset-0 flex items-center justify-center pointer-events-none rounded-lg z-0"
+        style={{
+          backgroundImage: 'url(/bnw.png)',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'fill',
+          backgroundSize: '100%',
+          /* opacity: 0.4 */
+        }}
+      />
+      
+      <div className="max-w-7xl mx-auto px-4 py-6 relative z-10">
+        <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
             <Button
               onClick={() => router.back()}
               variant="outline"
               size="sm"
+              className="border-slate-300 hover:text-black"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Vikings
             </Button>
-            <h1 className="text-3xl font-bold text-gray-900">
-              {playerName || 'Unknown Player'} - Player Statistics
-            </h1>
-            <p className="text-sm text-gray-600 mt-1">
-              {seasonParam === 'current' ? 'Current Season' : `Season ${seasonParam}`}
-            </p>
+            <div>
+              <h1 className="text-3xl font-bold text-white">
+                {playerName || 'Unknown Player'}
+              </h1>
+              <p className="text-sm text-white mt-1">
+                {seasonParam === 'current' ? 'Current Season' : `Season ${seasonParam}`}
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="bg-gradient-to-r from-slate-400 to-slate-600 text-white border border-black">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 opacity-95">
+          <Card className="bg-white border-slate-200 shadow-sm hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Highest Nightly Average</CardTitle>
-              <Target className="h-4 w-4" />
+              <CardTitle className="text-sm font-medium text-slate-700">Highest Nightly Average</CardTitle>
+              <Target className="h-4 w-4 text-red-700" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-2xl font-bold text-slate-900">
                 {playerStats?.highestAverage.toFixed(2) || '0.00'}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-r from-blue-400 to-blue-600 text-white border border-black">
+          <Card className="bg-white border-slate-200 shadow-sm hover:shadow-md transition-shadow opacity-95">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Games Won %</CardTitle>
-              <Trophy className="h-4 w-4" />
+              <CardTitle className="text-sm font-medium text-slate-700">Games Won %</CardTitle>
+              <Trophy className="h-4 w-4 text-red-700" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-2xl font-bold text-slate-900">
                 {playerStats?.winPercentage.toFixed(1) || '0.0'}%
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-r from-slate-400 to-slate-600 text-white border border-black">
+          <Card className="bg-white border-slate-200 shadow-sm hover:shadow-md transition-shadow opacity-95">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Accumulated Average</CardTitle>
-              <TrendingUp className="h-4 w-4" />
+              <CardTitle className="text-sm font-medium text-slate-700">Accumulated Average</CardTitle>
+              <TrendingUp className="h-4 w-4 text-red-700" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-2xl font-bold text-slate-900">
                 {playerStats?.accumulatedAverage.toFixed(2) || '0.00'}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-r from-blue-400 to-blue-600 text-white border border-black">
+          <Card className="bg-white border-slate-200 shadow-sm hover:shadow-md transition-shadow opacity-95">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Legs</CardTitle>
-              <Zap className="h-4 w-4" />
+              <CardTitle className="text-sm font-medium text-slate-700">Total Legs</CardTitle>
+              <Zap className="h-4 w-4 text-red-700" />
             </CardHeader>
             <CardContent>
-              <div className="text-xl font-bold">
+              <div className="text-xl font-bold text-slate-900">
                 Played: {(playerStats?.totalLegsWon || 0) + (playerStats?.totalLegsLost || 0)}
               </div>
-              <div className="text-lg font-medium mt-1">
+              <div className="text-sm text-slate-600 mt-1">
                 W: {playerStats?.totalLegsWon || 0} | L: {playerStats?.totalLegsLost || 0}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-r from-slate-400 to-slate-600 text-white border border-black">
+          <Card className="bg-white border-slate-200 shadow-sm hover:shadow-md transition-shadow opacity-95">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Darts Thrown</CardTitle>
-              <Target className="h-4 w-4" />
+              <CardTitle className="text-sm font-medium text-slate-700">Total Darts Thrown</CardTitle>
+              <Target className="h-4 w-4 text-red-700" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-2xl font-bold text-slate-900">
                 {playerStats?.totalDartsThrown?.toLocaleString() || '0'}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-r from-blue-400 to-blue-600 text-white border border-black">
+          <Card className="bg-white border-slate-200 shadow-sm hover:shadow-md transition-shadow opacity-95">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total 180s</CardTitle>
-              <Target className="h-4 w-4" />
+              <CardTitle className="text-sm font-medium text-slate-700">Total 180s</CardTitle>
+              <Target className="h-4 w-4 text-red-700" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-2xl font-bold text-slate-900">
                 {playerStats?.total180s || 0}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-r from-slate-400 to-slate-600 text-white border border-black">
+          <Card className="bg-white border-slate-200 shadow-sm hover:shadow-md transition-shadow opacity-95">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total 171s</CardTitle>
-              <Target className="h-4 w-4" />
+              <CardTitle className="text-sm font-medium text-slate-700">Total 171s</CardTitle>
+              <Target className="h-4 w-4 text-red-700" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-2xl font-bold text-slate-900">
                 {playerStats?.total171s || 0}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-r from-blue-400 to-blue-600 text-white border border-black">
+          <Card className="bg-white border-slate-200 shadow-sm hover:shadow-md transition-shadow opacity-95">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Highest Closer</CardTitle>
-              <Trophy className="h-4 w-4" />
+              <CardTitle className="text-sm font-medium text-slate-700">Highest Closer</CardTitle>
+              <Trophy className="h-4 w-4 text-red-700" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-2xl font-bold text-slate-900">
                 {playerStats?.highestCloser || 0}
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Weekly Averages Trend */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Weekly Averages Trend</CardTitle>
+        <Card className="mb-8 bg-white border-slate-200 shadow-sm opacity-90">
+          <CardHeader className="border-b border-slate-100">
+            <CardTitle className="text-slate-900">Weekly Averages Trend</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={weeklyAverages}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="week" />
-                  <YAxis />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                  <XAxis dataKey="week" stroke="#64748b" />
+                  <YAxis stroke="#64748b" />
                   <Tooltip 
                     formatter={(value: number | string, name: string) => [
                       `${Number(value).toFixed(2)}`,
                       name === 'average' ? 'Average' : name
                     ]}
+                    contentStyle={{ 
+                      backgroundColor: 'white', 
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '0.5rem'
+                    }}
                   />
                   <Line 
                     type="monotone" 
                     dataKey="average" 
-                    stroke="#3B82F6" 
-                    strokeWidth={2}
-                    dot={{ fill: '#3B82F6', strokeWidth: 2 }}
+                    stroke="#b91c1c" 
+                    strokeWidth={3}
+                    dot={{ fill: '#b91c1c', strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -508,66 +531,63 @@ export default function VikingsPlayerStatsPage() {
           </CardContent>
         </Card>
 
-        {/* Two Column Layout for Opponents and Top Matches */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Top 5 Most Played Opponents */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Top 5 Most Played Opponents</CardTitle>
+          <Card className="bg-white border-slate-200 shadow-sm opacity-90">
+            <CardHeader className="border-b border-slate-100">
+              <CardTitle className="text-slate-900">Top 5 Most Played Opponents</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b">
-                      <th className="text-left p-2">Opponent</th>
-                      <th className="text-center p-2">Played</th>
-                      <th className="text-center p-2">Wins</th>
-                      <th className="text-center p-2">Losses</th>
+                    <tr className="border-b border-slate-200">
+                      <th className="text-left p-2 font-semibold text-slate-700">Opponent</th>
+                      <th className="text-center p-2 font-semibold text-slate-700">Played</th>
+                      <th className="text-center p-2 font-semibold text-slate-700">Wins</th>
+                      <th className="text-center p-2 font-semibold text-slate-700">Losses</th>
                     </tr>
                   </thead>
                   <tbody>
                     {topOpponents.map((opponent, index) => (
-                      <tr key={index} className="border-b hover:bg-gray-50">
-                        <td className="p-2 font-medium">{opponent.opponent}</td>
-                        <td className="p-2 text-center">{opponent.timesPlayed}</td>
-                        <td className="p-2 text-center text-green-600">{opponent.wins}</td>
-                        <td className="p-2 text-center text-red-600">{opponent.losses}</td>
+                      <tr key={index} className="border-b border-slate-100 hover:bg-red-50 transition-colors">
+                        <td className="p-2 font-medium text-slate-900">{opponent.opponent}</td>
+                        <td className="p-2 text-center text-slate-700">{opponent.timesPlayed}</td>
+                        <td className="p-2 text-center text-emerald-600 font-semibold">{opponent.wins}</td>
+                        <td className="p-2 text-center text-rose-600 font-semibold">{opponent.losses}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
                 {topOpponents.length === 0 && (
-                  <p className="text-center text-gray-500 py-4">No match data available</p>
+                  <p className="text-center text-slate-500 py-4">No match data available</p>
                 )}
               </div>
             </CardContent>
           </Card>
 
-          {/* Top 10 Highest Average Games */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Top 10 Highest Average Games</CardTitle>
+          <Card className="bg-white border-slate-200 shadow-sm opacity-90">
+            <CardHeader className="border-b border-slate-100">
+              <CardTitle className="text-slate-900">Top 10 Highest Average Games</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b">
-                      <th className="text-left p-2">Date</th>
-                      <th className="text-left p-2">Against</th>
-                      <th className="text-center p-2">Average</th>
-                      <th className="text-center p-2">Result</th>
+                    <tr className="border-b border-slate-200">
+                      <th className="text-left p-2 font-semibold text-slate-700">Date</th>
+                      <th className="text-left p-2 font-semibold text-slate-700">Against</th>
+                      <th className="text-center p-2 font-semibold text-slate-700">Average</th>
+                      <th className="text-center p-2 font-semibold text-slate-700">Result</th>
                     </tr>
                   </thead>
                   <tbody>
                     {topMatches.map((match, index) => (
-                      <tr key={index} className="border-b hover:bg-gray-50">
-                        <td className="p-2">{match.date}</td>
-                        <td className="p-2">{match.against}</td>
-                        <td className="p-2 text-center font-bold">{match.average.toFixed(2)}</td>
+                      <tr key={index} className="border-b border-slate-100 hover:bg-red-50 transition-colors">
+                        <td className="p-2 text-slate-700">{match.date}</td>
+                        <td className="p-2 text-slate-900">{match.against}</td>
+                        <td className="p-2 text-center font-bold text-slate-900">{match.average.toFixed(2)}</td>
                         <td className={`p-2 text-center font-medium ${
-                          match.result === 'Won' ? 'text-green-600' : 'text-red-600'
+                          match.result === 'Won' ? 'text-emerald-600' : 'text-rose-600'
                         }`}>
                           {match.result}
                         </td>
@@ -576,13 +596,15 @@ export default function VikingsPlayerStatsPage() {
                   </tbody>
                 </table>
                 {topMatches.length === 0 && (
-                  <p className="text-center text-gray-500 py-4">No match data available</p>
+                  <p className="text-center text-slate-500 py-4">No match data available</p>
                 )}
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
+    </div>
+    </div>
     </div>
   );
 }
