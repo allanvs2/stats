@@ -1,4 +1,7 @@
-export default function JDADashboard() {
+  'use client';
+import { useState, useEffect } from 'react';
+  
+  export default function JDADashboard() {
   const [data, setData] = useState<JDAData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
