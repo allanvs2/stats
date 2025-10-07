@@ -2,7 +2,8 @@
 import { useState, useEffect } from 'react';
   
   export default function JDADashboard() {
-  const [data, setData] = useState<JDAData | null>(null);
+ /*  const [data, setData] = useState<JDAData | null>(null); */
+  /* const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -31,7 +32,7 @@ import { useState, useEffect } from 'react';
     }
     
     fetchJDAData();
-  }, [supabase]);
+  }, [supabase]); */
 
   // Add loading and error states...
   
