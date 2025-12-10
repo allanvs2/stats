@@ -392,7 +392,19 @@ export default function VikingsDashboard() {
                 <p className="text-sm text-white">Friday Night League</p>
               </div>
             </div>
+                <Button
+      variant="outline"
+      size="sm"
+      onClick={() => router.push('/clubs/vikings/handicaps')}
+      className="border-slate-300 hover:bg-slate-100"
+    >
+      <Target className="mr-2 h-4 w-4" />
+      View Handicaps
+    </Button>
           </div>
+
+
+          
           <div className="flex items-center gap-4">
             <label className="text-sm font-medium text-white">Season:</label>
             <Select value={selectedSeason} onValueChange={setSelectedSeason}>
