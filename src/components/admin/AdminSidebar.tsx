@@ -40,6 +40,12 @@ const navigation = [
     name: 'Analytics',
     href: '/admin/analytics',
     icon: BarChart3
+  },
+  {
+    name: 'Back',
+    href: '/dashboard',
+    icon: LayoutDashboard
+
   }
 ]
 

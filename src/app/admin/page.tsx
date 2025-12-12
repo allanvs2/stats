@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import NotificationBell from '@/components/admin/NotificationBell'
 import { 
   Users, 
   Building, 
@@ -52,6 +53,9 @@ export default async function AdminDashboard() {
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
         <p className="text-gray-600">Manage your darts club statistics platform</p>
+        <header className="bg-white shadow-sm border-b px-8 py-4 flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
+          <NotificationBell/></header> 
       </div>
 
       {/* Quick Stats */}
