@@ -51,11 +51,15 @@ export default async function AdminDashboard() {
     <div className="space-y-6">
       {/* Header */}
       <div>
+        <div>
         <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
         <p className="text-gray-600">Manage your darts club statistics platform</p>
+        </div>
+        <div style={{ paddingTop: '1rem' }}>
         <header className="bg-white shadow-sm border-b px-8 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
-          <NotificationBell/></header> 
+        <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
+        <NotificationBell/></header> 
+        </div>
       </div>
 
       {/* Quick Stats */}
