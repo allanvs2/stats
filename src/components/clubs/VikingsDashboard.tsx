@@ -21,12 +21,19 @@ interface VikingsStats {
   change: number;
 }
 
+interface SeasonEntry {
+  season: string;
+  year: number;
+  label: string;
+  value: string; // "season_year" e.g. "1_2026"
+}
+
 interface ClubStats {
   totalGames: number;
   total180s: number;
   totalDarts: number;
   clubAverage: number;
-  seasons: string[];
+  seasons: SeasonEntry[];
 }
 
 interface AggregatedPlayer {
@@ -59,6 +66,8 @@ export default function VikingsDashboard() {
     clubAverage: 0,
     seasons: []
   });
+  // Resolved season number actually being queried (used for player links)
+  const [resolvedSeason, setResolvedSeason] = useState<string>('');
   const [selectedSeason, setSelectedSeason] = useState<string>('current');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -78,23 +87,56 @@ export default function VikingsDashboard() {
       setLoading(true);
       setError(null);
 
-      // First, get available seasons (numeric)
+      // Fetch season + date so we can derive the year for each season
       const { data: seasonsData, error: seasonsError } = await supabase
         .from('vikings_friday')
-        .select('season')
+        .select('season, date')
         .not('season', 'is', null)
-        .order('season', { ascending: false });
+        .order('date', { ascending: false });
 
       if (seasonsError) throw seasonsError;
 
-      const uniqueSeasons = [...new Set(seasonsData?.map(item => String(item.season)) || [])];
-      const currentSeason = uniqueSeasons[0] || '';
+      // Build deduplicated season entries keyed by "season_year"
+      const seenKeys = new Set<string>();
+      const seasonEntries: SeasonEntry[] = [];
+      // Also track which season_year has the latest date (first row, since sorted desc)
+      let latestSeasonValue = '';
 
-      // Update club stats with seasons
-      setClubStats(prev => ({ ...prev, seasons: uniqueSeasons }));
+      for (const row of seasonsData || []) {
+        const season = String(row.season);
+        const year = row.date ? new Date(row.date).getFullYear() : new Date().getFullYear();
+        const value = `${season}_${year}`;
 
-      // If no season selected, use current season
-      const seasonToQuery = selectedSeason === 'current' ? currentSeason : selectedSeason;
+        if (!latestSeasonValue) latestSeasonValue = value; // first row = most recent date
+
+        if (!seenKeys.has(value)) {
+          seenKeys.add(value);
+          seasonEntries.push({
+            season,
+            year,
+            label: `Season ${season} (${year})`,
+            value
+          });
+        }
+      }
+
+      // Sort: most recent year first, then highest season number first within same year
+      seasonEntries.sort((a, b) => b.year - a.year || Number(b.season) - Number(a.season));
+
+      setClubStats(prev => ({ ...prev, seasons: seasonEntries }));
+
+      // Resolve what season number to actually query
+      let seasonToQuery: string;
+      if (selectedSeason === 'current') {
+        // Use the season with the most recent date
+        const latest = seasonEntries.find(e => e.value === latestSeasonValue);
+        seasonToQuery = latest?.season || seasonEntries[0]?.season || '';
+        setResolvedSeason(seasonToQuery);
+      } else {
+        // selectedSeason is "season_year" e.g. "1_2026" — extract the season number
+        seasonToQuery = selectedSeason.split('_')[0];
+        setResolvedSeason(seasonToQuery);
+      }
       
       console.log('Selected season:', selectedSeason);
       console.log('Season to query:', seasonToQuery);
@@ -413,9 +455,9 @@ export default function VikingsDashboard() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="current">Current Season</SelectItem>
-                {clubStats.seasons.map((season) => (
-                  <SelectItem key={season} value={season}>
-                    Season {season}
+                {clubStats.seasons.map((entry) => (
+                  <SelectItem key={entry.value} value={entry.value}>
+                    {entry.label}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -483,7 +525,9 @@ export default function VikingsDashboard() {
           <CardHeader className="border-b border-slate-100">
             <CardTitle className="text-slate-900">Club Rankings</CardTitle>
             <CardDescription className="text-slate-600">
-              Current standings for {selectedSeason === 'current' ? 'this season' : `season ${selectedSeason}`}
+              Current standings for {selectedSeason === 'current'
+                ? (clubStats.seasons.find(e => e.season === resolvedSeason)?.label || 'this season')
+                : (clubStats.seasons.find(e => e.value === selectedSeason)?.label || `season ${selectedSeason}`)}
               <br />
               <span className="text-red-700 font-medium">Click on player names to view detailed individual statistics</span>
             </CardDescription>
@@ -525,7 +569,7 @@ export default function VikingsDashboard() {
                       </td>
                       <td className="p-3">
                         <Link 
-                          href={`/clubs/vikings/${encodeURIComponent(player.name)}?season=${selectedSeason === 'current' ? clubStats.seasons[0] || 'current' : selectedSeason}&year=${selectedSeason === 'current' ? new Date().getFullYear() : selectedSeason}`}
+                          href={`/clubs/vikings/${encodeURIComponent(player.name)}?season=${resolvedSeason}&year=${selectedSeason === 'current' ? (clubStats.seasons.find(e => e.season === resolvedSeason)?.year || new Date().getFullYear()) : (clubStats.seasons.find(e => e.value === selectedSeason)?.year || new Date().getFullYear())}`}
                           className="text-red-700 hover:text-red-900 hover:underline font-medium cursor-pointer transition-colors duration-200"
                         >
                           {player.name}
