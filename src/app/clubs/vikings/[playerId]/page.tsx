@@ -507,7 +507,7 @@ export default function VikingsPlayerStatsPage() {
                   <XAxis dataKey="week" stroke="#64748b" />
                   <YAxis stroke="#64748b" />
                   <Tooltip 
-                    formatter={(value: string | number | undefined, name: string) => [
+                  formatter={(value, name) => [
                       `${Number(value ?? 0).toFixed(2)}`,
                       name === 'average' ? 'Average' : name
                     ]}
