@@ -26,6 +26,7 @@ interface VikingsFridayData {
   winner: number;
   block: string;
   season: string;
+  year: number;  // Added year field
 }
 
 interface VikingsMatchData {
@@ -111,30 +112,45 @@ export default function VikingsPlayerStatsPage() {
       setLoading(true);
       setError(null);
 
-      let seasonToQuery: number | null = null;
+      // Get current season and year
+      let seasonToQuery: string | null = null;
+      let yearToQuery: number | null = null;
       
       if (seasonParam !== 'current') {
-        seasonToQuery = parseInt(seasonParam);
+        // Parse season_year format (e.g., "1_2026")
+        const parts = seasonParam.split('_');
+        seasonToQuery = parts[0];
+        yearToQuery = parts[1] ? parseInt(parts[1]) : null;
       } else {
+        // Get most recent season and year
         const { data: seasonsData } = await supabase
           .from('vikings_friday')
-          .select('season')
+          .select('season, year')
           .not('season', 'is', null)
+          .order('year', { ascending: false })
           .order('season', { ascending: false })
           .limit(1);
         
         if (seasonsData && seasonsData.length > 0) {
           seasonToQuery = seasonsData[0].season;
+          yearToQuery = seasonsData[0].year;
         }
       }
 
+      // Query vikings_friday with season as STRING and year as INTEGER
       let fridayQuery = supabase
         .from('vikings_friday')
         .select('*')
         .eq('name', playerName);
       
       if (seasonToQuery !== null) {
+        // CRITICAL FIX: season is VARCHAR, so use string comparison
         fridayQuery = fridayQuery.eq('season', seasonToQuery);
+      }
+      
+      if (yearToQuery !== null) {
+        // CRITICAL FIX: Also filter by year
+        fridayQuery = fridayQuery.eq('year', yearToQuery);
       }
 
       const { data: fridayResponse, error: fridayError } = await fridayQuery
@@ -142,13 +158,20 @@ export default function VikingsPlayerStatsPage() {
 
       if (fridayError) throw fridayError;
 
+      // Query vikings_matches with season as INTEGER and year as INTEGER
       let matchQuery = supabase
         .from('vikings_matches')
         .select('*')
         .eq('player', playerName);
       
-      if (seasonToQuery !== null && seasonToQuery !== undefined) {
-        matchQuery = matchQuery.eq('season', seasonToQuery);
+      if (seasonToQuery !== null) {
+        // CRITICAL FIX: vikings_matches.season is INTEGER, so convert string to number
+        matchQuery = matchQuery.eq('season', parseInt(seasonToQuery));
+      }
+      
+      if (yearToQuery !== null) {
+        // CRITICAL FIX: Also filter by year
+        matchQuery = matchQuery.eq('year', yearToQuery);
       }
 
       const { data: matchResponse, error: matchError } = await matchQuery
