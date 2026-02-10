@@ -15,7 +15,8 @@ interface AuthFormProps {
 export default function AuthForm({ type }: AuthFormProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [fullName, setFullName] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [messageType, setMessageType] = useState<'success' | 'error' | ''>('')
@@ -30,17 +31,35 @@ export default function AuthForm({ type }: AuthFormProps) {
 
     try {
       if (type === 'signup') {
+        // Create auth user with first_name and last_name
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             data: {
-              full_name: fullName,
+              first_name: firstName,
+              last_name: lastName,
             },
           },
         })
         
         if (error) throw error
+        
+        // Update profile with first_name and last_name
+        if (data.user) {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .update({ 
+              first_name: firstName,
+              last_name: lastName 
+            })
+            .eq('id', data.user.id)
+          
+          if (profileError) {
+            console.error('Error updating profile:', profileError)
+            // Don't throw here, user is created, just log the error
+          }
+        }
         
         if (data.user && !data.user.email_confirmed_at) {
           setMessage('Check your email to confirm your account!')
@@ -75,18 +94,32 @@ export default function AuthForm({ type }: AuthFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {type === 'signup' && (
-        <div>
-          <Label htmlFor="fullName" className="text-white">Full Name</Label>
-          <Input
-            id="fullName"
-            type="text"
-            required
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            className="mt-1 bg-white/20 border-white/30 text-white placeholder-gray-300"
-            placeholder="Enter your full name"
-            disabled={loading}
-          />
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="firstName" className="text-white">First Name *</Label>
+            <Input
+              id="firstName"
+              type="text"
+              required
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              className="mt-1 bg-white/20 border-white/30 text-white placeholder-gray-300"
+              placeholder="John"
+              disabled={loading}
+            />
+          </div>
+          <div>
+            <Label htmlFor="lastName" className="text-white">Last Name</Label>
+            <Input
+              id="lastName"
+              type="text"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              className="mt-1 bg-white/20 border-white/30 text-white placeholder-gray-300"
+              placeholder="Doe"
+              disabled={loading}
+            />
+          </div>
         </div>
       )}
       

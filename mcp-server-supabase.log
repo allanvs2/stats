@@ -1,0 +1,238 @@
+2026-02-09T10:43:35.002Z [supabase] [info] Initializing server... { metadata: undefined }
+2026-02-09T10:43:35.054Z [supabase] [info] Using MCP server command: npx with args and path: {
+  metadata: {
+    args: [ '-y', '@modelcontextprotocol/server-supabase', [length]: 2 ],
+    paths: [
+      'C:\\windows\\system32',
+      'C:\\windows',
+      'C:\\windows\\System32\\Wbem',
+      'C:\\windows\\System32\\WindowsPowerShell\\v1.0\\',
+      'C:\\windows\\System32\\OpenSSH\\',
+      'C:\\Program Files\\HP\\HP One Agent',
+      'C:\\Program Files\\dotnet\\',
+      'C:\\Program Files (x86)\\Automox\\',
+      'C:\\Users\\allan\\AppData\\Local\\UniGetUI\\Chocolatey\\bin',
+      'C:\\Users\\allan\\AppData\\Local\\Microsoft\\WindowsApps',
+      'C:\\Users\\allan\\AppData\\Local\\Programs\\Microsoft VS Code\\bin',
+      [length]: 11
+    ]
+  }
+} %o
+2026-02-09T10:43:35.069Z [supabase] [info] Server started and connected successfully { metadata: undefined }
+2026-02-09T10:43:35.186Z [supabase] [info] Message from client: {"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{"extensions":{"io.modelcontextprotocol/ui":{"mimeTypes":["text/html;profile=mcp-app"]}}},"clientInfo":{"name":"claude-ai","version":"0.1.0"}},"jsonrpc":"2.0","id":0} { metadata: undefined }
+'npx' is not recognized as an internal or external command,
+operable program or batch file.
+2026-02-09T10:43:35.257Z [supabase] [error] spawn npx ENOENT {
+  metadata: {
+    context: 'connection',
+    stack: 'Error: spawn npx ENOENT\n' +
+      '    at e (C:\\Users\\allan\\AppData\\Local\\AnthropicClaude\\app-1.1.2321\\resources\\app.asar\\.vite\\build\\index.js:284:7709)\n' +
+      '    at n (C:\\Users\\allan\\AppData\\Local\\AnthropicClaude\\app-1.1.2321\\resources\\app.asar\\.vite\\build\\index.js:284:8036)\n' +
+      '    at a.emit (C:\\Users\\allan\\AppData\\Local\\AnthropicClaude\\app-1.1.2321\\resources\\app.asar\\.vite\\build\\index.js:284:7927)\n' +
+      '    at ChildProcess._handle.onexit (node:internal/child_process:293:12)'
+  }
+}
+2026-02-09T10:43:35.257Z [supabase] [info] Server transport closed { metadata: undefined }
+2026-02-09T10:43:35.257Z [supabase] [info] Client transport closed { metadata: undefined }
+2026-02-09T10:43:35.258Z [supabase] [info] Server transport closed unexpectedly, this is likely due to the process exiting early. If you are developing this MCP server you can add output to stderr (i.e. `console.error('...')` in JavaScript, `print('...', file=sys.stderr)` in python) and it will appear in this log. { metadata: undefined }
+2026-02-09T10:43:35.258Z [supabase] [error] Server disconnected. For troubleshooting guidance, please visit our [debugging documentation](https://modelcontextprotocol.io/docs/tools/debugging) { metadata: { context: 'connection', stack: undefined } }
+2026-02-09T10:43:35.258Z [supabase] [info] Client transport closed { metadata: undefined }
+2026-02-09T10:43:43.226Z [supabase] [info] Client transport closed { metadata: undefined }
+2026-02-09T10:43:43.226Z [supabase] [info] Initializing server... { metadata: undefined }
+2026-02-09T10:43:43.225Z [supabase] [info] Shutting down server... { metadata: undefined }
+2026-02-09T10:43:43.289Z [supabase] [info] Using MCP server command: npx with args and path: {
+  metadata: {
+    args: [ '-y', '@modelcontextprotocol/server-supabase', [length]: 2 ],
+    paths: [
+      'C:\\windows\\system32',
+      'C:\\windows',
+      'C:\\windows\\System32\\Wbem',
+      'C:\\windows\\System32\\WindowsPowerShell\\v1.0\\',
+      'C:\\windows\\System32\\OpenSSH\\',
+      'C:\\Program Files\\HP\\HP One Agent',
+      'C:\\Program Files\\dotnet\\',
+      'C:\\Program Files (x86)\\Automox\\',
+      'C:\\Users\\allan\\AppData\\Local\\UniGetUI\\Chocolatey\\bin',
+      'C:\\Users\\allan\\AppData\\Local\\Microsoft\\WindowsApps',
+      'C:\\Users\\allan\\AppData\\Local\\Programs\\Microsoft VS Code\\bin',
+      [length]: 11
+    ]
+  }
+} %o
+2026-02-09T10:43:43.307Z [supabase] [info] Server started and connected successfully { metadata: undefined }
+2026-02-09T10:43:43.380Z [supabase] [info] Message from client: {"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{"extensions":{"io.modelcontextprotocol/ui":{"mimeTypes":["text/html;profile=mcp-app"]}}},"clientInfo":{"name":"claude-ai","version":"0.1.0"}},"jsonrpc":"2.0","id":0} { metadata: undefined }
+'npx' is not recognized as an internal or external command,
+operable program or batch file.
+2026-02-09T10:43:43.495Z [supabase] [error] spawn npx ENOENT {
+  metadata: {
+    context: 'connection',
+    stack: 'Error: spawn npx ENOENT\n' +
+      '    at e (C:\\Users\\allan\\AppData\\Local\\AnthropicClaude\\app-1.1.2321\\resources\\app.asar\\.vite\\build\\index.js:284:7709)\n' +
+      '    at n (C:\\Users\\allan\\AppData\\Local\\AnthropicClaude\\app-1.1.2321\\resources\\app.asar\\.vite\\build\\index.js:284:8036)\n' +
+      '    at a.emit (C:\\Users\\allan\\AppData\\Local\\AnthropicClaude\\app-1.1.2321\\resources\\app.asar\\.vite\\build\\index.js:284:7927)\n' +
+      '    at ChildProcess._handle.onexit (node:internal/child_process:293:12)'
+  }
+}
+2026-02-09T10:43:43.495Z [supabase] [info] Server transport closed { metadata: undefined }
+2026-02-09T10:43:43.495Z [supabase] [info] Client transport closed { metadata: undefined }
+2026-02-09T10:43:43.495Z [supabase] [info] Server transport closed unexpectedly, this is likely due to the process exiting early. If you are developing this MCP server you can add output to stderr (i.e. `console.error('...')` in JavaScript, `print('...', file=sys.stderr)` in python) and it will appear in this log. { metadata: undefined }
+2026-02-09T10:43:43.495Z [supabase] [error] Server disconnected. For troubleshooting guidance, please visit our [debugging documentation](https://modelcontextprotocol.io/docs/tools/debugging) { metadata: { context: 'connection', stack: undefined } }
+2026-02-09T10:43:43.495Z [supabase] [info] Client transport closed { metadata: undefined }
+2026-02-09T10:47:49.697Z [supabase] [info] Client transport closed { metadata: undefined }
+2026-02-09T10:47:49.697Z [supabase] [info] Shutting down server... { metadata: undefined }
+2026-02-09T10:48:14.954Z [supabase] [info] Initializing server... { metadata: undefined }
+2026-02-09T10:48:15.006Z [supabase] [info] Using MCP server command: wsl.exe with args and path: {
+  metadata: {
+    args: [
+      'bash',
+      '-ic',
+      'SUPABASE_URL=https://dpwdthrfsnsoitpknrkr.supabase.co SUPABASE_SERVICE_ROLE_KEY=sbp_5f263f7ffd2331abbaa7d2f4bd2a5794d1067c68 npx -y @modelcontextprotocol/server-supabase',
+      [length]: 3
+    ],
+    paths: [
+      'C:\\windows\\system32',
+      'C:\\windows',
+      'C:\\windows\\System32\\Wbem',
+      'C:\\windows\\System32\\WindowsPowerShell\\v1.0\\',
+      'C:\\windows\\System32\\OpenSSH\\',
+      'C:\\Program Files\\HP\\HP One Agent',
+      'C:\\Program Files\\dotnet\\',
+      'C:\\Program Files (x86)\\Automox\\',
+      'C:\\Users\\allan\\AppData\\Local\\UniGetUI\\Chocolatey\\bin',
+      'C:\\Users\\allan\\AppData\\Local\\Microsoft\\WindowsApps',
+      'C:\\Users\\allan\\AppData\\Local\\Programs\\Microsoft VS Code\\bin',
+      [length]: 11
+    ]
+  }
+} %o
+2026-02-09T10:48:15.017Z [supabase] [info] Server started and connected successfully { metadata: undefined }
+2026-02-09T10:48:15.094Z [supabase] [info] Message from client: {"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{"extensions":{"io.modelcontextprotocol/ui":{"mimeTypes":["text/html;profile=mcp-app"]}}},"clientInfo":{"name":"claude-ai","version":"0.1.0"}},"jsonrpc":"2.0","id":0} { metadata: undefined }
+npm notice Access token expired or revoked. Please try logging in again.
+npm notice Access token expired or revoked. Please try logging in again.
+npm error code E404
+npm error 404 Not Found - GET https://registry.npmjs.org/@modelcontextprotocol%2fserver-supabase - Not found
+npm error 404
+npm error 404  The requested resource '@modelcontextprotocol/server-supabase@*' could not be found or you do not have permission to access it.
+npm error 404
+npm error 404 Note that you can also install from a
+npm error 404 tarball, folder, http url, or git url.
+npm error A complete log of this run can be found in: /home/allan/.npm/_logs/2026-02-09T10_49_07_874Z-debug-0.log
+2026-02-09T10:48:16.875Z [supabase] [info] Server transport closed { metadata: undefined }
+2026-02-09T10:48:16.875Z [supabase] [info] Client transport closed { metadata: undefined }
+2026-02-09T10:48:16.876Z [supabase] [info] Server transport closed unexpectedly, this is likely due to the process exiting early. If you are developing this MCP server you can add output to stderr (i.e. `console.error('...')` in JavaScript, `print('...', file=sys.stderr)` in python) and it will appear in this log. { metadata: undefined }
+2026-02-09T10:48:16.876Z [supabase] [error] Server disconnected. For troubleshooting guidance, please visit our [debugging documentation](https://modelcontextprotocol.io/docs/tools/debugging) { metadata: { context: 'connection', stack: undefined } }
+2026-02-09T10:48:16.876Z [supabase] [info] Client transport closed { metadata: undefined }
+2026-02-09T10:48:23.204Z [supabase] [info] Client transport closed { metadata: undefined }
+2026-02-09T10:48:23.203Z [supabase] [info] Shutting down server... { metadata: undefined }
+2026-02-09T10:48:23.204Z [supabase] [info] Initializing server... { metadata: undefined }
+2026-02-09T10:48:23.240Z [supabase] [info] Using MCP server command: wsl.exe with args and path: {
+  metadata: {
+    args: [
+      'bash',
+      '-ic',
+      'SUPABASE_URL=https://dpwdthrfsnsoitpknrkr.supabase.co SUPABASE_SERVICE_ROLE_KEY=sbp_5f263f7ffd2331abbaa7d2f4bd2a5794d1067c68 npx -y @modelcontextprotocol/server-supabase',
+      [length]: 3
+    ],
+    paths: [
+      'C:\\windows\\system32',
+      'C:\\windows',
+      'C:\\windows\\System32\\Wbem',
+      'C:\\windows\\System32\\WindowsPowerShell\\v1.0\\',
+      'C:\\windows\\System32\\OpenSSH\\',
+      'C:\\Program Files\\HP\\HP One Agent',
+      'C:\\Program Files\\dotnet\\',
+      'C:\\Program Files (x86)\\Automox\\',
+      'C:\\Users\\allan\\AppData\\Local\\UniGetUI\\Chocolatey\\bin',
+      'C:\\Users\\allan\\AppData\\Local\\Microsoft\\WindowsApps',
+      'C:\\Users\\allan\\AppData\\Local\\Programs\\Microsoft VS Code\\bin',
+      [length]: 11
+    ]
+  }
+} %o
+2026-02-09T10:48:23.251Z [supabase] [info] Server started and connected successfully { metadata: undefined }
+2026-02-09T10:48:23.284Z [supabase] [info] Message from client: {"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{"extensions":{"io.modelcontextprotocol/ui":{"mimeTypes":["text/html;profile=mcp-app"]}}},"clientInfo":{"name":"claude-ai","version":"0.1.0"}},"jsonrpc":"2.0","id":0} { metadata: undefined }
+npm notice Access token expired or revoked. Please try logging in again.
+npm notice Access token expired or revoked. Please try logging in again.
+npm error code E404
+npm error 404 Not Found - GET https://registry.npmjs.org/@modelcontextprotocol%2fserver-supabase - Not found
+npm error 404
+npm error 404  The requested resource '@modelcontextprotocol/server-supabase@*' could not be found or you do not have permission to access it.
+npm error 404
+npm error 404 Note that you can also install from a
+npm error 404 tarball, folder, http url, or git url.
+npm error A complete log of this run can be found in: /home/allan/.npm/_logs/2026-02-09T10_49_18_332Z-debug-0.log
+2026-02-09T10:48:24.253Z [supabase] [info] Server transport closed { metadata: undefined }
+2026-02-09T10:48:24.253Z [supabase] [info] Client transport closed { metadata: undefined }
+2026-02-09T10:48:24.253Z [supabase] [info] Server transport closed unexpectedly, this is likely due to the process exiting early. If you are developing this MCP server you can add output to stderr (i.e. `console.error('...')` in JavaScript, `print('...', file=sys.stderr)` in python) and it will appear in this log. { metadata: undefined }
+2026-02-09T10:48:24.253Z [supabase] [error] Server disconnected. For troubleshooting guidance, please visit our [debugging documentation](https://modelcontextprotocol.io/docs/tools/debugging) { metadata: { context: 'connection', stack: undefined } }
+2026-02-09T10:48:24.253Z [supabase] [info] Client transport closed { metadata: undefined }
+2026-02-09T11:06:34.447Z [supabase] [info] Client transport closed { metadata: undefined }
+2026-02-09T11:06:34.447Z [supabase] [info] Shutting down server... { metadata: undefined }
+2026-02-09T11:06:59.908Z [supabase] [info] Initializing server... { metadata: undefined }
+2026-02-09T11:06:59.966Z [supabase] [info] Using MCP server command: wsl.exe with args and path: {
+  metadata: {
+    args: [
+      'bash',
+      '-ic',
+      'postgresql://postgres.dpwdthrfsnsoitpknrkr:dOZdgwdc1ETMyImD@aws-0-us-west-1.pooler.supabase.com:6543/postgres',
+      [length]: 3
+    ],
+    paths: [
+      'C:\\windows\\system32',
+      'C:\\windows',
+      'C:\\windows\\System32\\Wbem',
+      'C:\\windows\\System32\\WindowsPowerShell\\v1.0\\',
+      'C:\\windows\\System32\\OpenSSH\\',
+      'C:\\Program Files\\HP\\HP One Agent',
+      'C:\\Program Files\\dotnet\\',
+      'C:\\Program Files (x86)\\Automox\\',
+      'C:\\Users\\allan\\AppData\\Local\\UniGetUI\\Chocolatey\\bin',
+      'C:\\Users\\allan\\AppData\\Local\\Microsoft\\WindowsApps',
+      'C:\\Users\\allan\\AppData\\Local\\Programs\\Microsoft VS Code\\bin',
+      [length]: 11
+    ]
+  }
+} %o
+2026-02-09T11:06:59.977Z [supabase] [info] Server started and connected successfully { metadata: undefined }
+2026-02-09T11:07:00.049Z [supabase] [info] Message from client: {"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{"extensions":{"io.modelcontextprotocol/ui":{"mimeTypes":["text/html;profile=mcp-app"]}}},"clientInfo":{"name":"claude-ai","version":"0.1.0"}},"jsonrpc":"2.0","id":0} { metadata: undefined }
+bash: postgresql://postgres.dpwdthrfsnsoitpknrkr:dOZdgwdc1ETMyImD@aws-0-us-west-1.pooler.supabase.com:6543/postgres: No such file or directory
+2026-02-09T11:07:00.612Z [supabase] [info] Server transport closed { metadata: undefined }
+2026-02-09T11:07:00.613Z [supabase] [info] Client transport closed { metadata: undefined }
+2026-02-09T11:07:00.613Z [supabase] [info] Server transport closed unexpectedly, this is likely due to the process exiting early. If you are developing this MCP server you can add output to stderr (i.e. `console.error('...')` in JavaScript, `print('...', file=sys.stderr)` in python) and it will appear in this log. { metadata: undefined }
+2026-02-09T11:07:00.613Z [supabase] [error] Server disconnected. For troubleshooting guidance, please visit our [debugging documentation](https://modelcontextprotocol.io/docs/tools/debugging) { metadata: { context: 'connection', stack: undefined } }
+2026-02-09T11:07:00.614Z [supabase] [info] Client transport closed { metadata: undefined }
+2026-02-09T11:07:06.215Z [supabase] [info] Client transport closed { metadata: undefined }
+2026-02-09T11:07:06.216Z [supabase] [info] Initializing server... { metadata: undefined }
+2026-02-09T11:07:06.215Z [supabase] [info] Shutting down server... { metadata: undefined }
+2026-02-09T11:07:06.251Z [supabase] [info] Using MCP server command: wsl.exe with args and path: {
+  metadata: {
+    args: [
+      'bash',
+      '-ic',
+      'postgresql://postgres.dpwdthrfsnsoitpknrkr:dOZdgwdc1ETMyImD@aws-0-us-west-1.pooler.supabase.com:6543/postgres',
+      [length]: 3
+    ],
+    paths: [
+      'C:\\windows\\system32',
+      'C:\\windows',
+      'C:\\windows\\System32\\Wbem',
+      'C:\\windows\\System32\\WindowsPowerShell\\v1.0\\',
+      'C:\\windows\\System32\\OpenSSH\\',
+      'C:\\Program Files\\HP\\HP One Agent',
+      'C:\\Program Files\\dotnet\\',
+      'C:\\Program Files (x86)\\Automox\\',
+      'C:\\Users\\allan\\AppData\\Local\\UniGetUI\\Chocolatey\\bin',
+      'C:\\Users\\allan\\AppData\\Local\\Microsoft\\WindowsApps',
+      'C:\\Users\\allan\\AppData\\Local\\Programs\\Microsoft VS Code\\bin',
+      [length]: 11
+    ]
+  }
+} %o
+2026-02-09T11:07:06.265Z [supabase] [info] Server started and connected successfully { metadata: undefined }
+2026-02-09T11:07:06.267Z [supabase] [info] Message from client: {"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{"extensions":{"io.modelcontextprotocol/ui":{"mimeTypes":["text/html;profile=mcp-app"]}}},"clientInfo":{"name":"claude-ai","version":"0.1.0"}},"jsonrpc":"2.0","id":0} { metadata: undefined }
+bash: postgresql://postgres.dpwdthrfsnsoitpknrkr:dOZdgwdc1ETMyImD@aws-0-us-west-1.pooler.supabase.com:6543/postgres: No such file or directory
+2026-02-09T11:07:06.870Z [supabase] [info] Server transport closed { metadata: undefined }
+2026-02-09T11:07:06.870Z [supabase] [info] Client transport closed { metadata: undefined }
+2026-02-09T11:07:06.870Z [supabase] [info] Server transport closed unexpectedly, this is likely due to the process exiting early. If you are developing this MCP server you can add output to stderr (i.e. `console.error('...')` in JavaScript, `print('...', file=sys.stderr)` in python) and it will appear in this log. { metadata: undefined }
+2026-02-09T11:07:06.870Z [supabase] [error] Server disconnected. For troubleshooting guidance, please visit our [debugging documentation](https://modelcontextprotocol.io/docs/tools/debugging) { metadata: { context: 'connection', stack: undefined } }
+2026-02-09T11:07:06.870Z [supabase] [info] Client transport closed { metadata: undefined }

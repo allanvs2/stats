@@ -21,10 +21,22 @@ interface ClubMembershipFromSupabase {
 interface Profile {
   id: string
   email: string
-  full_name: string | null
+  first_name: string | null
+  last_name: string | null
   role: string
   created_at: string
   updated_at: string
+}
+
+// Helper function to get full name
+function getFullName(profile: Profile | null): string {
+  if (!profile) return 'User'
+  if (profile.first_name && profile.last_name) {
+    return `${profile.first_name} ${profile.last_name}`
+  } else if (profile.first_name) {
+    return profile.first_name
+  }
+  return profile.email
 }
 
 // Helper function to get club route path
@@ -84,7 +96,7 @@ export default async function DashboardPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-              <p className="text-gray-600">Welcome back, {profile?.full_name || user.email}!</p>
+              <p className="text-gray-600">Welcome back, {getFullName(profile)}!</p>
             </div>
             <div className="flex items-center space-x-4">
               {profile?.role === 'admin' && (

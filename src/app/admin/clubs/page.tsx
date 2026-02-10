@@ -4,14 +4,15 @@ import AdminClubsClient from '@/components/admin/AdminClubsClient'
 
 // Define types for better TypeScript support - matching AdminClubsClient interfaces
 interface Profile {
-  full_name: string | null
+  first_name: string | null
+  last_name: string | null
   email: string
 }
 
 interface VikingsMember {
   id: string
-  name: string | null
-  surname: string | null
+  first_name: string | null
+  last_name: string | null
   member: string | null
   user_id: string | null
   profiles: Profile | null
@@ -19,7 +20,9 @@ interface VikingsMember {
 
 interface JdaMember {
   id: string
-  player_name: string | null
+  first_name: string | null
+  last_name: string | null
+  display_name: string | null
   user_id: string | null
   profiles: Profile | null
 }
@@ -53,16 +56,16 @@ export default async function ClubsPage() {
     `)
     .order('name')
 
-  // Get all users - simple query
+  // Get all users - updated to use first_name and last_name
   const { data: allUsers } = await supabase
     .from('profiles')
-    .select('id, email, full_name')
-    .order('full_name')
+    .select('id, email, first_name, last_name')
+    .order('first_name')
 
-  // Transform users to match expected interface - without complex memberships for now
+  // Transform users to match expected interface
   const users = allUsers?.map(user => ({
     ...user,
-    club_memberships: [] // We'll populate this differently or handle in the client
+    club_memberships: []
   })) || []
 
   // Get existing player names from each club's data tables
@@ -80,10 +83,10 @@ export default async function ClubsPage() {
   const uniqueVikingsPlayers = Array.from(new Set(vikingsPlayers?.map(p => p.name).filter(Boolean) || []))
   const uniqueJdaPlayers = Array.from(new Set(jdaPlayers?.map(p => p.player).filter(Boolean) || []))
 
-  // Get Vikings members - simplified
+  // Get Vikings members
   const { data: vikingsMembers } = await supabase
     .from('vikings_members')
-    .select('id, name, surname, member, user_id')
+    .select('id, first_name, last_name, member, user_id')
 
   // Add profile info to vikings members
   const vikingsMembersWithProfiles: VikingsMember[] = await Promise.all(
@@ -91,7 +94,7 @@ export default async function ClubsPage() {
       if (member.user_id) {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('full_name, email')
+          .select('first_name, last_name, email')
           .eq('id', member.user_id)
           .single()
         
@@ -107,19 +110,19 @@ export default async function ClubsPage() {
     })
   )
 
-  // Get JDA members - handle if table doesn't exist
+  // Get JDA members
   let jdaMembersWithProfiles: JdaMember[] = []
   try {
     const { data: jdaMembers } = await supabase
       .from('jda_members')
-      .select('id, player_name, user_id')
+      .select('id, first_name, last_name, display_name, user_id')
 
     jdaMembersWithProfiles = await Promise.all(
       (jdaMembers || []).map(async (member) => {
         if (member.user_id) {
           const { data: profile } = await supabase
             .from('profiles')
-            .select('full_name, email')
+            .select('first_name, last_name, email')
             .eq('id', member.user_id)
             .single()
           
@@ -135,8 +138,7 @@ export default async function ClubsPage() {
       })
     )
   } catch {
-    // Removed unused 'error' parameter and simplified catch block
-    console.log('JDA members table not yet created')
+    console.log('JDA members table error')
     jdaMembersWithProfiles = []
   }
 
