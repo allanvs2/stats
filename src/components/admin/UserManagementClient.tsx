@@ -23,7 +23,8 @@ interface ClubMembership {
 interface User {
   id: string
   email: string
-  full_name: string | null
+  first_name: string | null
+  last_name: string | null
   role: string
   created_at: string
   club_memberships: ClubMembership[]
@@ -46,11 +47,22 @@ export default function UserManagementClient({ initialUsers, clubs }: Props) {
   const [newUser, setNewUser] = useState({
     email: '',
     password: '',
-    full_name: '',
+    first_name: '',
+    last_name: '',
     role: 'user'
   })
 
   const supabase = createClient()
+
+  // Helper function to get full name
+  const getFullName = (user: User) => {
+    if (user.first_name && user.last_name) {
+      return `${user.first_name} ${user.last_name}`
+    } else if (user.first_name) {
+      return user.first_name
+    }
+    return user.email
+  }
 
   const showMessage = (type: 'success' | 'error', text: string) => {
     setMessage({ type, text })
@@ -169,7 +181,7 @@ export default function UserManagementClient({ initialUsers, clubs }: Props) {
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!newUser.email || !newUser.password || !newUser.full_name) {
+    if (!newUser.email || !newUser.password || !newUser.first_name) {
       showMessage('error', 'Please fill in all required fields')
       return
     }
@@ -182,7 +194,8 @@ export default function UserManagementClient({ initialUsers, clubs }: Props) {
         password: newUser.password,
         options: {
           data: {
-            full_name: newUser.full_name
+            first_name: newUser.first_name,
+            last_name: newUser.last_name
           }
         }
       })
@@ -190,19 +203,21 @@ export default function UserManagementClient({ initialUsers, clubs }: Props) {
       if (authError) throw authError
 
       if (authData.user) {
-        // Update role if not 'user'
-        if (newUser.role !== 'user') {
-          const { error: roleError } = await supabase
-            .from('profiles')
-            .update({ role: newUser.role })
-            .eq('id', authData.user.id)
-          
-          if (roleError) throw roleError
-        }
+        // Update profile with names and role
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ 
+            first_name: newUser.first_name,
+            last_name: newUser.last_name,
+            role: newUser.role 
+          })
+          .eq('id', authData.user.id)
+        
+        if (updateError) throw updateError
       }
 
       await refreshUsers()
-      setNewUser({ email: '', password: '', full_name: '', role: 'user' })
+      setNewUser({ email: '', password: '', first_name: '', last_name: '', role: 'user' })
       setShowCreateForm(false)
       showMessage('success', 'User created successfully')
     } catch (error) {
@@ -263,7 +278,7 @@ export default function UserManagementClient({ initialUsers, clubs }: Props) {
           <form onSubmit={handleCreateUser} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">Email *</Label>
                 <Input
                   id="email"
                   type="email"
@@ -274,18 +289,28 @@ export default function UserManagementClient({ initialUsers, clubs }: Props) {
                 />
               </div>
               <div>
-                <Label htmlFor="full_name">Full Name</Label>
+                <Label htmlFor="first_name">First Name *</Label>
                 <Input
-                  id="full_name"
+                  id="first_name"
                   type="text"
-                  value={newUser.full_name}
-                  onChange={(e) => setNewUser(prev => ({ ...prev, full_name: e.target.value }))}
-                  placeholder="John Doe"
+                  value={newUser.first_name}
+                  onChange={(e) => setNewUser(prev => ({ ...prev, first_name: e.target.value }))}
+                  placeholder="John"
                   required
                 />
               </div>
               <div>
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="last_name">Last Name</Label>
+                <Input
+                  id="last_name"
+                  type="text"
+                  value={newUser.last_name}
+                  onChange={(e) => setNewUser(prev => ({ ...prev, last_name: e.target.value }))}
+                  placeholder="Doe"
+                />
+              </div>
+              <div>
+                <Label htmlFor="password">Password *</Label>
                 <Input
                   id="password"
                   type="password"
@@ -331,7 +356,7 @@ export default function UserManagementClient({ initialUsers, clubs }: Props) {
               <option value="">Choose a user...</option>
               {users.map((user) => (
                 <option key={user.id} value={user.id}>
-                  {user.full_name || user.email}
+                  {getFullName(user)}
                 </option>
               ))}
             </select>
@@ -373,7 +398,7 @@ export default function UserManagementClient({ initialUsers, clubs }: Props) {
                 <div className="flex-1">
                   <div className="flex items-center gap-4 mb-2">
                     <h3 className="font-medium text-lg">
-                      {user.full_name || 'No Name'}
+                      {getFullName(user)}
                     </h3>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                       user.role === 'admin' 
