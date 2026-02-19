@@ -40,7 +40,6 @@ interface VikingsMember {
   id: string
   first_name: string | null
   last_name: string | null
-  member: string | null
   user_id: string | null
   profiles: {
     first_name: string | null
@@ -135,6 +134,20 @@ export default function AdminClubsClient({
     return profile.email
   }
 
+  // Helper function to get full name from member
+  const getMemberFullName = (member: VikingsMember | JDAMember) => {
+    if ('display_name' in member && member.display_name) {
+      return member.display_name
+    }
+    if (member.first_name && member.last_name) {
+      return `${member.first_name} ${member.last_name}`
+    }
+    if (member.first_name) {
+      return member.first_name
+    }
+    return null
+  }
+
   const showMessage = (type: 'success' | 'error', text: string) => {
     setMessage({ type, text })
     setTimeout(() => setMessage(null), 5000)
@@ -163,7 +176,7 @@ export default function AdminClubsClient({
       // Refresh Vikings members
       const { data: vikingsData } = await supabase
         .from('vikings_members')
-        .select('id, first_name, last_name, member, user_id')
+        .select('id, first_name, last_name, user_id')
 
       if (vikingsData) {
         const vikingsMembersWithProfiles = await Promise.all(
@@ -265,9 +278,15 @@ export default function AdminClubsClient({
     setLoading(true)
     try {
       if (club.database_prefix === 'vikings') {
-        const existingMember = currentVikingsMembers.find(m => m.first_name === selectedPlayer)
+        // selectedPlayer is a full name from vikings_friday (e.g., "John Doe")
+        // Find member by matching the full constructed name
+        const existingMember = currentVikingsMembers.find(m => {
+          const memberFullName = getMemberFullName(m)
+          return memberFullName === selectedPlayer
+        })
         
         if (existingMember) {
+          // Update existing member with user_id
           const { error } = await supabase
             .from('vikings_members')
             .update({ user_id: selectedUser })
@@ -275,11 +294,16 @@ export default function AdminClubsClient({
 
           if (error) throw error
         } else {
+          // Create new member - split the selected player name
+          const nameParts = selectedPlayer.split(' ')
+          const firstName = nameParts[0]
+          const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : null
+          
           const { error } = await supabase
             .from('vikings_members')
             .insert({
-              first_name: selectedPlayer,
-              member: selectedPlayer,
+              first_name: firstName,
+              last_name: lastName,
               user_id: selectedUser
             })
 
@@ -288,6 +312,7 @@ export default function AdminClubsClient({
 
         showMessage('success', 'Player linked successfully in Vikings club')
       } else if (club.database_prefix === 'jda') {
+        // selectedPlayer is a full name from jda_stats
         const existingMember = currentJdaMembers.find(m => m.display_name === selectedPlayer)
         
         if (existingMember) {
@@ -298,11 +323,17 @@ export default function AdminClubsClient({
 
           if (error) throw error
         } else {
+          // Split name for first/last but keep full name as display_name
+          const nameParts = selectedPlayer.split(' ')
+          const firstName = nameParts[0]
+          const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : null
+          
           const { error } = await supabase
             .from('jda_members')
             .insert({
               display_name: selectedPlayer,
-              first_name: selectedPlayer,
+              first_name: firstName,
+              last_name: lastName,
               user_id: selectedUser
             })
 
@@ -320,7 +351,7 @@ export default function AdminClubsClient({
       setSelectedPlayer('')
     } catch (error) {
       console.error('Error linking player:', error)
-      showMessage('error', 'Failed to link player')
+      showMessage('error', `Failed to link player: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setLoading(false)
     }
@@ -705,7 +736,7 @@ export default function AdminClubsClient({
                 {currentVikingsMembers.filter(m => m.user_id).map((member) => (
                   <div key={member.id} className="flex items-center justify-between bg-blue-50 rounded p-3">
                     <div>
-                      <span className="font-medium">{member.first_name || 'Unknown'}</span>
+                      <span className="font-medium">{getMemberFullName(member) || 'Unknown'}</span>
                       <span className="text-sm text-gray-600 ml-2">
                         → {getProfileName(member.profiles)} ({member.profiles?.email})
                       </span>
@@ -734,7 +765,7 @@ export default function AdminClubsClient({
                 {currentJdaMembers.filter(m => m.user_id).map((member) => (
                   <div key={member.id} className="flex items-center justify-between bg-purple-50 rounded p-3">
                     <div>
-                      <span className="font-medium">{member.display_name || 'Unknown'}</span>
+                      <span className="font-medium">{member.display_name || getMemberFullName(member) || 'Unknown'}</span>
                       <span className="text-sm text-gray-600 ml-2">
                         → {getProfileName(member.profiles)} ({member.profiles?.email})
                       </span>
@@ -765,12 +796,12 @@ export default function AdminClubsClient({
                   <div className="grid grid-cols-2 gap-2">
                     {currentVikingsMembers.filter(m => !m.user_id).map((member) => (
                       <div key={member.id} className="bg-gray-50 rounded p-2 text-sm">
-                        {member.first_name || 'Unnamed'}
+                        {getMemberFullName(member) || 'Unnamed'}
                       </div>
                     ))}
                     
                     {vikingsPlayers.filter(player => 
-                      !currentVikingsMembers.some(m => m.first_name === player)
+                      !currentVikingsMembers.some(m => getMemberFullName(m) === player)
                     ).map((player) => (
                       <div key={player} className="bg-yellow-50 rounded p-2 text-sm">
                         {player} <span className="text-xs text-gray-500">(stats only)</span>
@@ -784,7 +815,7 @@ export default function AdminClubsClient({
                   <div className="grid grid-cols-2 gap-2">
                     {currentJdaMembers.filter(m => !m.user_id).map((member) => (
                       <div key={member.id} className="bg-gray-50 rounded p-2 text-sm">
-                        {member.display_name || 'Unnamed'}
+                        {member.display_name || getMemberFullName(member) || 'Unnamed'}
                       </div>
                     ))}
                     
